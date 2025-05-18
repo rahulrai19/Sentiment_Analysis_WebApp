@@ -78,5 +78,25 @@ async def feedback_summary():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Submit feedback to database endpoint
+@app.post("/api/submit-feedback")
+async def submit_feedback(feedback: dict):
+    try:
+        collection.insert_one(feedback)
+        return {"status": "Feedback saved!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/test-insert")
+async def test_insert():
+    test_feedback = {"name": "John", "comment": "Great event!"}
+    collection.insert_one(test_feedback)
+    return {"status": "Test data inserted!"}
+
+@app.get("/api/test-retrieve")
+async def test_retrieve():
+    data = list(collection.find({}, {"_id": 0}))  # Remove MongoDB ObjectID
+    return {"feedback": data}
+
 # Include existing routes
 app.include_router(router, prefix="/api")
