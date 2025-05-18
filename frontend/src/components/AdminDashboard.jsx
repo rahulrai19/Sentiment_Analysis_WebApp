@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Pie } from "react-chartjs-2";
+import { Chart, ArcElement } from "chart.js";
+
+Chart.register(ArcElement);
 
 export default function AdminDashboard() {
   const [feedbackList, setFeedbackList] = useState([]);
