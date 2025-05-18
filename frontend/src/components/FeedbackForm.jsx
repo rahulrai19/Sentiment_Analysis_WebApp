@@ -37,7 +37,7 @@ export default function FeedbackForm() {
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Submit Feedback</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-center">Submit Feedback form</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           className="w-full p-2 border rounded"
