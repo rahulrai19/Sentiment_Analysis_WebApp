@@ -135,74 +135,78 @@ const FeedbackForm = () => {
           <span className="dashboard-value">{dashboard.avgRating}</span>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
-          name="name"
-          placeholder="Your Name"
-          onChange={handleChange}
-          value={formData.name}
-          required
-        />
-        <input
-          className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
-          name="event"
-          placeholder="Event/Club Name"
-          onChange={handleChange}
-          value={formData.event}
-          required
-        />
-        {/* Event Type Dropdown */}
-        <select
-          className="form-select border-2 border-blue-300 rounded-full focus:border-blue-600"
-          name="eventType"
-          value={formData.eventType}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select Event Type</option>
-          {EVENT_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-        {/* Rating Slider */}
-        <div className="my-4">
-          <label className="block font-semibold mb-2">
-            Rating: <span className="ml-2 text-xl">{getEmojiForRating(formData.rating)} {formData.rating}</span>
-          </label>
+      <div className="feedback-form-main">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="range"
-            min="1"
-            max="10"
-            value={formData.rating}
-            onChange={handleSliderChange}
-            className="w-full accent-blue-600"
-            style={{ height: "2.5rem" }}
+            className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
+            name="name"
+            placeholder="Your Name"
+            onChange={handleChange}
+            value={formData.name}
+            required
           />
-          <div className="flex justify-between text-xs mt-1 px-1">
-            <span>1</span>
-            <span>5</span>
-            <span>10</span>
+          <input
+            className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
+            name="event"
+            placeholder="Event/Club Name"
+            onChange={handleChange}
+            value={formData.event}
+            required
+          />
+          {/* Event Type Dropdown */}
+          <select
+            className="form-select border-2 border-blue-300 rounded-full focus:border-blue-600"
+            name="eventType"
+            value={formData.eventType}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Event Type</option>
+            {EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+          {/* Rating Slider */}
+          <div className="my-4">
+            <label className="block font-semibold mb-2">
+              Rating: <span className="ml-2 text-xl">{getEmojiForRating(formData.rating)} {formData.rating}</span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={formData.rating}
+              onChange={handleSliderChange}
+              className="w-full accent-blue-600"
+              style={{ height: "2.5rem" }}
+            />
+            <div className="flex justify-between text-xs mt-1 px-1">
+              <span>1</span>
+              <span>5</span>
+              <span>10</span>
+            </div>
           </div>
-        </div>
-        <textarea
-          className="form-textarea border-2 border-blue-300 rounded-2xl focus:border-blue-600"
-          name="comment"
-          placeholder="Your Feedback"
-          onChange={handleChange}
-          value={formData.comment}
-          required
-        />
-        <button
-          type="submit"
-          className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-6 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition btn-block text-lg font-semibold"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit"}
-        </button>
-      </form>
+          <textarea
+            className="form-textarea border-2 border-blue-300 rounded-2xl focus:border-blue-600"
+            name="comment"
+            placeholder="Your Feedback"
+            onChange={handleChange}
+            value={formData.comment}
+            required
+          />
+          <div className="btn-block">
+            <button
+              type="submit"
+              className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-6 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg font-semibold"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        </form>
+      </div>
       {/* Feedback Dashboard */}
       <div className="mt-10">
         <h3 className="text-lg font-semibold mb-4">All Submissions</h3>
