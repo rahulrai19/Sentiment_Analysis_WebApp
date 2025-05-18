@@ -9,19 +9,29 @@ import './index.css'
 function NavBar() {
   const location = useLocation();
   return (
-    <nav className="w-full bg-blue-600 py-3 mb-6 shadow">
+    <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-8 shadow-lg">
       <div className="max-w-4xl mx-auto flex justify-between items-center px-4">
-        <span className="text-white font-bold text-xl">Sentiment Feeder</span>
+        <div className="flex items-center gap-3">
+          <span className="text-white text-3xl font-extrabold tracking-tight drop-shadow-lg flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="inline-block mr-2" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="#2563eb"/>
+              <path d="M8 13h8M8 17h5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="9" cy="9" r="1.5" fill="white"/>
+              <circle cx="15" cy="9" r="1.5" fill="white"/>
+            </svg>
+            Sentiment <span className="text-yellow-300 ml-1">Feeder</span>
+          </span>
+        </div>
         <div className="flex gap-4">
           <Link
             to="/"
-            className={`text-white px-3 py-1 rounded hover:bg-blue-700 transition ${location.pathname === "/" ? "bg-blue-800" : ""}`}
+            className={`text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/" ? "bg-blue-900/80" : ""}`}
           >
             Feedback
           </Link>
           <Link
             to="/admin"
-            className={`text-white px-3 py-1 rounded hover:bg-blue-700 transition ${location.pathname === "/admin" ? "bg-blue-800" : ""}`}
+            className={`text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/admin" ? "bg-blue-900/80" : ""}`}
           >
             Admin Dashboard
           </Link>

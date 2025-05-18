@@ -229,7 +229,7 @@ body {
 
 .rating-option-emoji.selected,
 .rating-option-emoji:focus {
-  border: 2px solid #2563eb;
+  border: 2px solid #0c0c0c;
   background: #e0e7ff;
   transform: scale(1.08);
 }
@@ -519,24 +519,57 @@ input[type="range"] {
   margin: 0 auto;
   padding: 2.5rem 2rem;
   background: var(--white);
-  border-radius: 1 rem;
+  border-radius: 1rem;
   box-shadow: 0 8px 32px rgba(0,0,0,0.10);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Add or update these rules at the end of your CSS file */
+
+/* 1rem border radius for input, select, textarea */
 input.form-input,
 select.form-select,
 textarea.form-textarea {
-  border-radius: 0.5rem !important;
+  border-radius: 1rem !important;
   text-align: center;
+  margin-bottom: 1.25rem; /* Adds gap between input boxes */
 }
 
-/* Center placeholder text for input, select, textarea */
+/* Center placeholder text */
 input.form-input::placeholder,
 select.form-select::placeholder,
 textarea.form-textarea::placeholder {
   text-align: center;
   opacity: 1;
 }
+
+/* Optional: Remove extra margin from last input/textarea in the form */
+.feedback-form-main form > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Header Title Enhancements */
+.header-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(90deg, #fff 30%, #facc15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.1;
+  text-shadow: 0 2px 16px rgba(37,99,235,0.15);
+}
+
+.header-icon {
+  display: inline-block;
+  margin-right: 0.5rem;
+  filter: drop-shadow(0 2px 8px #2563eb55);
+}
+
