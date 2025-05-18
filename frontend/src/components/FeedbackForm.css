@@ -468,6 +468,8 @@ body {
 
 /* Feedback Dashboard */
 .feedback-dashboard {
+  display: grid;
+  gap: 1rem;
   max-height: 16rem;
   overflow-y: auto;
 }
@@ -485,4 +487,23 @@ body {
 
 .feedback-dashboard tr {
   border-bottom: 1px solid #e5e7eb;
+}
+
+.feedback-dashboard .bg-white {
+  transition: box-shadow 0.2s;
+}
+
+.feedback-dashboard .bg-white:hover {
+  box-shadow: 0 4px 24px rgba(37,99,235,0.08);
+}
+
+.min-w-\[70px\] {
+  min-width: 70px;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: #2563eb;
+  height: 2.5rem;
 }

@@ -10,7 +10,7 @@ const EVENT_TYPES = [
   "Other",
 ];
 
-// Emoji map for ratings
+// Emoji map for ratings (for display only)
 const ratingEmojis = [
   { min: 1, max: 2, emoji: "😡", label: "Very Bad" },
   { min: 3, max: 4, emoji: "😕", label: "Bad" },
@@ -30,7 +30,7 @@ const FeedbackForm = () => {
     event: "",
     eventType: "",
     comment: "",
-    rating: "",
+    rating: 5,
   });
   const [sentiment, setSentiment] = useState(null);
   const [submitted, setSubmitted] = useState(false);
@@ -68,8 +68,8 @@ const FeedbackForm = () => {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleRatingSelect = (rating) => {
-    setFormData({ ...formData, rating });
+  const handleSliderChange = (e) => {
+    setFormData({ ...formData, rating: Number(e.target.value) });
   };
 
   const handleSubmit = async (e) => {
@@ -110,7 +110,7 @@ const FeedbackForm = () => {
               event: "",
               eventType: "",
               comment: "",
-              rating: "",
+              rating: 5,
             });
             setSentiment(null);
             setSubmitted(false);
@@ -167,20 +167,25 @@ const FeedbackForm = () => {
             </option>
           ))}
         </select>
-        {/* Rating Input with Emojis */}
-        <div className="rating-container flex justify-between items-center my-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) => (
-            <button
-              type="button"
-              key={r}
-              className={`rating-option-emoji${Number(formData.rating) === r ? " selected" : ""}`}
-              onClick={() => handleRatingSelect(r)}
-              aria-label={`Rate ${r}`}
-            >
-              <span style={{ fontSize: "2rem", display: "block" }}>{getEmojiForRating(r)}</span>
-              <span style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{r}</span>
-            </button>
-          ))}
+        {/* Rating Slider */}
+        <div className="my-4">
+          <label className="block font-semibold mb-2">
+            Rating: <span className="ml-2 text-xl">{getEmojiForRating(formData.rating)} {formData.rating}</span>
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={formData.rating}
+            onChange={handleSliderChange}
+            className="w-full accent-blue-600"
+            style={{ height: "2.5rem" }}
+          />
+          <div className="flex justify-between text-xs mt-1 px-1">
+            <span>1</span>
+            <span>5</span>
+            <span>10</span>
+          </div>
         </div>
         <textarea
           className="form-textarea"
@@ -200,36 +205,27 @@ const FeedbackForm = () => {
       </form>
       {/* Feedback Dashboard */}
       <div className="mt-10">
-        <h3 className="text-lg font-semibold mb-2">All Submissions</h3>
-        <div className="feedback-dashboard bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+        <h3 className="text-lg font-semibold mb-4">All Submissions</h3>
+        <div className="feedback-dashboard grid gap-4 max-h-64 overflow-y-auto">
           {allFeedbacks.length === 0 ? (
             <p className="text-gray-500 text-center">No feedback submitted yet.</p>
           ) : (
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="px-2 py-1 text-left">Name</th>
-                  <th className="px-2 py-1 text-left">Event</th>
-                  <th className="px-2 py-1 text-left">Type</th>
-                  <th className="px-2 py-1 text-left">Rating</th>
-                  <th className="px-2 py-1 text-left">Comment</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allFeedbacks.map((f, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="px-2 py-1">{f.name}</td>
-                    <td className="px-2 py-1">{f.event}</td>
-                    <td className="px-2 py-1">{f.eventType}</td>
-                    <td className="px-2 py-1 text-center">
-                      <span style={{ fontSize: "1.2rem" }}>{getEmojiForRating(Number(f.rating))}</span>
-                      <span className="ml-1">{f.rating}</span>
-                    </td>
-                    <td className="px-2 py-1">{f.comment}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            allFeedbacks.map((f, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center gap-2"
+              >
+                <div className="flex-1">
+                  <div className="font-bold text-blue-700">{f.name}</div>
+                  <div className="text-sm text-gray-500">{f.event} &mdash; {f.eventType}</div>
+                  <div className="mt-1">{f.comment}</div>
+                </div>
+                <div className="flex flex-col items-center min-w-[70px]">
+                  <span style={{ fontSize: "2rem" }}>{getEmojiForRating(Number(f.rating))}</span>
+                  <span className="font-semibold">{f.rating}</span>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
