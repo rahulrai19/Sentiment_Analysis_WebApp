@@ -529,5 +529,14 @@ input[type="range"] {
 input.form-input,
 select.form-select,
 textarea.form-textarea {
-  border-radius: 0 !important;
+  border-radius: 0.5rem !important;
+  text-align: center;
+}
+
+/* Center placeholder text for input, select, textarea */
+input.form-input::placeholder,
+select.form-select::placeholder,
+textarea.form-textarea::placeholder {
+  text-align: center;
+  opacity: 1;
 }
