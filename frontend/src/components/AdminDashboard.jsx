@@ -40,15 +40,19 @@ export default function AdminDashboard() {
       </div>
       <h3 className="text-lg font-semibold mb-2">Recent Feedback</h3>
       <ul className="space-y-2">
-        {summary.recent_feedback.map((f, i) => (
-          <li key={i} className="p-3 bg-white rounded shadow">
-            <p>
-              <span className="font-bold">{f.event}</span> —{" "}
-              <span className="italic text-sm text-gray-500">{f.sentiment}</span>
-            </p>
-            <p>{f.comment}</p>
-          </li>
-        ))}
+        {summary.recent_feedback && summary.recent_feedback.length > 0 ? (
+          summary.recent_feedback.map((f, i) => (
+            <li key={i} className="p-3 bg-white rounded shadow">
+              <p>
+                <span className="font-bold">{f.event}</span> —{" "}
+                <span className="italic text-sm text-gray-500">{f.sentiment}</span>
+              </p>
+              <p>{f.comment}</p>
+            </li>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No feedback available</p>
+        )}
       </ul>
     </div>
   );
