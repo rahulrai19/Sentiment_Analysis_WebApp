@@ -338,7 +338,48 @@ body {
   font-size: 0.9rem;
 }
 
-/* Responsive Adjustments */
+/* Select Dropdown Styling */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+  
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+  
+/* Selected Rating Option */
+.rating-option.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary);
+}
+
+/* Hover effect for rating options */
+.rating-option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* Additional responsive adjustments */
 @media (max-width: 768px) {
   .feedback-header h1 {
     font-size: 2rem;
@@ -350,6 +391,31 @@ body {
   
   .rating-container {
     justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .feedback-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .dashboard-header {
+    padding: 1.5rem;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .rating-container {
+    gap: 0.25rem;
+  }
+  
+  .rating-option {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
   }
 }
 
