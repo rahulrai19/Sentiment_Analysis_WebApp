@@ -10,6 +10,20 @@ const EVENT_TYPES = [
   "Other",
 ];
 
+// Emoji map for ratings
+const ratingEmojis = [
+  { min: 1, max: 2, emoji: "😡", label: "Very Bad" },
+  { min: 3, max: 4, emoji: "😕", label: "Bad" },
+  { min: 5, max: 6, emoji: "😐", label: "Neutral" },
+  { min: 7, max: 8, emoji: "🙂", label: "Good" },
+  { min: 9, max: 10, emoji: "😃", label: "Excellent" },
+];
+
+function getEmojiForRating(rating) {
+  const found = ratingEmojis.find((e) => rating >= e.min && rating <= e.max);
+  return found ? found.emoji : "😐";
+}
+
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -24,6 +38,7 @@ const FeedbackForm = () => {
 
   // Dashboard state
   const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
+  const [allFeedbacks, setAllFeedbacks] = useState([]);
 
   const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -33,6 +48,7 @@ const FeedbackForm = () => {
       .get(`${API_BASE}/feedbacks`)
       .then((res) => {
         const feedbacks = res.data || [];
+        setAllFeedbacks(feedbacks);
         const count = feedbacks.length;
         const ratings = feedbacks
           .map((f) => Number(f.rating))
@@ -43,11 +59,18 @@ const FeedbackForm = () => {
             : 0;
         setDashboard({ count, avgRating });
       })
-      .catch(() => setDashboard({ count: 0, avgRating: 0 }));
+      .catch(() => {
+        setDashboard({ count: 0, avgRating: 0 });
+        setAllFeedbacks([]);
+      });
   }, [submitted, API_BASE]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleRatingSelect = (rating) => {
+    setFormData({ ...formData, rating });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,11 +125,15 @@ const FeedbackForm = () => {
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
       <h2 className="text-2xl font-semibold mb-4 text-center">Submit Feedback Form</h2>
       {/* Dashboard Section */}
-      <div className="dashboard-section">
-        <span className="dashboard-label">Total Submissions:</span>
-        <span className="dashboard-value">{dashboard.count}</span>
-        <span className="dashboard-label">Average Rating:</span>
-        <span className="dashboard-value">{dashboard.avgRating}</span>
+      <div className="dashboard-section mb-6 p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+        <div>
+          <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
+          <span className="dashboard-value">{dashboard.count}</span>
+        </div>
+        <div>
+          <span className="dashboard-label font-semibold">Average Rating:</span>{" "}
+          <span className="dashboard-value">{dashboard.avgRating}</span>
+        </div>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -140,16 +167,19 @@ const FeedbackForm = () => {
             </option>
           ))}
         </select>
-        {/* Rating Input */}
-        <div className="rating-container">
+        {/* Rating Input with Emojis */}
+        <div className="rating-container flex justify-between items-center my-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) => (
-            <div
+            <button
+              type="button"
               key={r}
-              className={`rating-option${formData.rating === r ? " selected" : ""}`}
-              onClick={() => setFormData({ ...formData, rating: r })}
+              className={`rating-option-emoji${Number(formData.rating) === r ? " selected" : ""}`}
+              onClick={() => handleRatingSelect(r)}
+              aria-label={`Rate ${r}`}
             >
-              {r}
-            </div>
+              <span style={{ fontSize: "2rem", display: "block" }}>{getEmojiForRating(r)}</span>
+              <span style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{r}</span>
+            </button>
           ))}
         </div>
         <textarea
@@ -168,6 +198,41 @@ const FeedbackForm = () => {
           {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
+      {/* Feedback Dashboard */}
+      <div className="mt-10">
+        <h3 className="text-lg font-semibold mb-2">All Submissions</h3>
+        <div className="feedback-dashboard bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+          {allFeedbacks.length === 0 ? (
+            <p className="text-gray-500 text-center">No feedback submitted yet.</p>
+          ) : (
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="px-2 py-1 text-left">Name</th>
+                  <th className="px-2 py-1 text-left">Event</th>
+                  <th className="px-2 py-1 text-left">Type</th>
+                  <th className="px-2 py-1 text-left">Rating</th>
+                  <th className="px-2 py-1 text-left">Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allFeedbacks.map((f, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="px-2 py-1">{f.name}</td>
+                    <td className="px-2 py-1">{f.event}</td>
+                    <td className="px-2 py-1">{f.eventType}</td>
+                    <td className="px-2 py-1 text-center">
+                      <span style={{ fontSize: "1.2rem" }}>{getEmojiForRating(Number(f.rating))}</span>
+                      <span className="ml-1">{f.rating}</span>
+                    </td>
+                    <td className="px-2 py-1">{f.comment}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
