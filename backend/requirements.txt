@@ -8,5 +8,7 @@ vaderSentiment==3.3.2
 pymongo
 pandas
 textblob
+Pydantic
+
 
 # Other dependencies...
