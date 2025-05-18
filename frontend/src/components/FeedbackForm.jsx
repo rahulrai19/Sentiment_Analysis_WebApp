@@ -222,7 +222,7 @@ const FeedbackForm = () => {
             allFeedbacks.map((f, i) => (
               <div
                 key={i}
-                className="bg-blue-50 border-2 border-blue-200 rounded-2xl shadow p-4 flex flex-col md:flex-row md:items-center gap-2"
+                className="feedback-card flex flex-col md:flex-row md:items-center gap-3"
               >
                 <div className="flex-1">
                   <div className="font-bold text-blue-700">{f.name}</div>
