@@ -30,7 +30,7 @@ const FeedbackForm = () => {
     event: "",
     eventType: "",
     comment: "",
-    rating: 5,
+    rating: 7,
   });
   const [sentiment, setSentiment] = useState(null);
   const [submitted, setSubmitted] = useState(false);
@@ -110,7 +110,7 @@ const FeedbackForm = () => {
               event: "",
               eventType: "",
               comment: "",
-              rating: 5,
+              rating: 7,
             });
             setSentiment(null);
             setSubmitted(false);
@@ -185,11 +185,11 @@ const FeedbackForm = () => {
               className="rating-slider mb-2"
               style={{ accentColor: "#2563eb" }}
             />
-            {/* <div className="flex justify-between text-xs mt-1 px-1">
-              <span>1</span>
+            <div className="flex justify-between text-xs mt-1 px-1">
+              {/* <span>1</span>
               <span>5</span>
-              <span>10</span>
-            </div> */}
+              <span>10</span> */}
+            </div>
           </div>
           <textarea
             className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
