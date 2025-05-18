@@ -171,7 +171,10 @@ const FeedbackForm = () => {
           {/* Rating Slider */}
           <div className="my-4">
             <label className="block font-semibold mb-2 text-blue-700">
-              Rating: <span className="ml-2 text-xl">{formData.rating}</span>
+              Rating:
+              <span className="ml-2 text-xl align-middle">
+                {getEmojiForRating(formData.rating)} {formData.rating}
+              </span>
             </label>
             <input
               type="range"
@@ -179,7 +182,7 @@ const FeedbackForm = () => {
               max="10"
               value={formData.rating}
               onChange={handleSliderChange}
-              className="w-full accent-blue-600 h-3 rounded-lg appearance-none cursor-pointer mb-2"
+              className="rating-slider mb-2"
               style={{ accentColor: "#2563eb" }}
             />
             <div className="flex justify-between text-xs mt-1 px-1">
