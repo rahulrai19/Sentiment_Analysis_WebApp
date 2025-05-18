@@ -503,7 +503,6 @@ body {
 
 input[type="range"] {
   width: 100%;
-  margin: 0;
   accent-color: #2563eb;
   height: 2.5rem;
 }

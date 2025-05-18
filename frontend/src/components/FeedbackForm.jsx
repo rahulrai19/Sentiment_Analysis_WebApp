@@ -103,7 +103,7 @@ const FeedbackForm = () => {
           </div>
         )}
         <button
-          className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 transition"
           onClick={() => {
             setFormData({
               name: "",
@@ -137,7 +137,7 @@ const FeedbackForm = () => {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          className="form-input"
+          className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
           name="name"
           placeholder="Your Name"
           onChange={handleChange}
@@ -145,7 +145,7 @@ const FeedbackForm = () => {
           required
         />
         <input
-          className="form-input"
+          className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
           name="event"
           placeholder="Event/Club Name"
           onChange={handleChange}
@@ -154,7 +154,7 @@ const FeedbackForm = () => {
         />
         {/* Event Type Dropdown */}
         <select
-          className="form-select"
+          className="form-select border-2 border-blue-300 rounded-full focus:border-blue-600"
           name="eventType"
           value={formData.eventType}
           onChange={handleChange}
@@ -188,7 +188,7 @@ const FeedbackForm = () => {
           </div>
         </div>
         <textarea
-          className="form-textarea"
+          className="form-textarea border-2 border-blue-300 rounded-2xl focus:border-blue-600"
           name="comment"
           placeholder="Your Feedback"
           onChange={handleChange}
@@ -197,7 +197,7 @@ const FeedbackForm = () => {
         />
         <button
           type="submit"
-          className="btn btn-primary btn-block"
+          className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-6 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition btn-block text-lg font-semibold"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Submit"}
@@ -213,7 +213,7 @@ const FeedbackForm = () => {
             allFeedbacks.map((f, i) => (
               <div
                 key={i}
-                className="bg-white border border-gray-200 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center gap-2"
+                className="bg-blue-50 border-2 border-blue-200 rounded-2xl shadow p-4 flex flex-col md:flex-row md:items-center gap-2"
               >
                 <div className="flex-1">
                   <div className="font-bold text-blue-700">{f.name}</div>
