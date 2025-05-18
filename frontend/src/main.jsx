@@ -9,7 +9,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <Router>
     <Routes>
       <Route path="/" element={<FeedbackForm />} />
-      <Route path="/admin" element={<AdminDashboard />} />
+      <Route 
+        path="/admin" 
+        element={<AdminDashboard />} 
+      />
     </Routes>
   </Router>
 )

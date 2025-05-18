@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from .routes.api import router
 from .middleware.logging import LoggingMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,14 +13,14 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 
 app = FastAPI(
-    title=os.getenv("APP_NAME", "FastAPI Backend"),
-    version=os.getenv("API_VERSION", "v1")
+    title="FastAPI Sentiment Backend",
+    version="v1"
 )
 
-# Add middlewares
+# Allow CORS from any origin (adjust for production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://verbose-feedbacker.netlify.app/"],  # Replace with your actual Netlify URL
+    allow_origins=["*"],  # or specify your frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,14 +32,38 @@ client = MongoClient(MONGO_URI)
 db = client["feedbackDB"]
 collection = db["feedback"]
 
-# Insert feedback API (simplified, no sentiment analysis)
-@app.post("/api/submit-feedback")
-async def submit_feedback(feedback_data: dict):
-    try:
-        collection.insert_one(feedback_data)
-        return {"status": "Feedback saved!"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# In-memory feedback store
+feedback_data = []
+
+# Sentiment analysis function
+def analyze_sentiment(text):
+    polarity = TextBlob(text).sentiment.polarity
+    if polarity > 0.2:
+        return "Positive"
+    elif polarity < -0.2:
+        return "Negative"
+    else:
+        return "Neutral"
+
+# Submit feedback endpoint
+@app.post("/submit-feedback")
+async def submit_feedback(request: Request):
+    data = await request.json()
+    feedback_text = data.get("feedback")
+    if not feedback_text:
+        raise HTTPException(status_code=400, detail="Feedback required")
+    sentiment = analyze_sentiment(feedback_text)
+    entry = {
+        "feedback": feedback_text,
+        "sentiment": sentiment
+    }
+    feedback_data.append(entry)
+    return {"message": "Feedback received", "sentiment": sentiment}
+
+# Get all feedbacks endpoint
+@app.get("/feedbacks")
+async def get_all_feedbacks():
+    return feedback_data
 
 # API endpoint to fetch feedback summary
 @app.get("/api/feedback-summary")
