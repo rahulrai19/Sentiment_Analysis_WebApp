@@ -1,9 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-export default function FeedbackForm() {
+const FeedbackForm = () => {
   const [formData, setFormData] = useState({ name: "", event: "", comment: "" });
+  const [sentiment, setSentiment] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -12,8 +14,9 @@ export default function FeedbackForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         `${API_BASE}/api/submit-feedback`,
         formData,
         {
@@ -22,17 +25,24 @@ export default function FeedbackForm() {
           },
         }
       );
+      setSentiment(response.data.sentiment); // If backend returns sentiment
       setSubmitted(true);
     } catch (error) {
       console.error("Submission failed:", error);
     }
+    setLoading(false);
   };
 
   if (submitted)
     return (
-      <h2 className="text-green-600 text-center mt-8">
-        Thank you for your feedback!
-      </h2>
+      <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl text-center">
+        <h2 className="text-green-600 mb-4">Thank you for your feedback!</h2>
+        {sentiment && (
+          <div className="mt-4 p-3 bg-gray-100 rounded">
+            <strong>Sentiment:</strong> {sentiment}
+          </div>
+        )}
+      </div>
     );
 
   return (
@@ -44,6 +54,7 @@ export default function FeedbackForm() {
           name="name"
           placeholder="Your Name"
           onChange={handleChange}
+          value={formData.name}
           required
         />
         <input
@@ -51,6 +62,7 @@ export default function FeedbackForm() {
           name="event"
           placeholder="Event/Club Name"
           onChange={handleChange}
+          value={formData.event}
           required
         />
         <textarea
@@ -58,14 +70,21 @@ export default function FeedbackForm() {
           name="comment"
           placeholder="Your Feedback"
           onChange={handleChange}
+          value={formData.comment}
           required
         />
-        <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-          Submit
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
   );
-}
+};
+
+export default FeedbackForm;
 
 
