@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Pie } from "react-chartjs-2";
-import { Chart, ArcElement } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+import { Chart, ArcElement, DoughnutController } from "chart.js";
 
-Chart.register(ArcElement);
+Chart.register(ArcElement, DoughnutController);
 
 export default function AdminDashboard() {
   const [feedbackList, setFeedbackList] = useState([]);
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
       .finally(() => setLoading(false));
   }, [API_BASE]);
 
-  const pieData = {
+  const chartData = {
     labels: ["Positive", "Neutral", "Negative"],
     datasets: [
       {
@@ -37,12 +37,21 @@ export default function AdminDashboard() {
     ],
   };
 
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+      },
+    },
+  };
+
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 bg-gray-100 shadow rounded-xl">
       <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
 
       <div className="mb-6">
-        <Pie data={pieData} />
+        <Doughnut data={chartData} options={chartOptions} />
       </div>
 
       <h3 className="text-lg font-semibold mb-2">Recent Feedback</h3>
