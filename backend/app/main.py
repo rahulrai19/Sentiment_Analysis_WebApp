@@ -10,6 +10,7 @@ from pymongo import MongoClient
 
 # Load environment variables
 load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
 
 app = FastAPI(
     title=os.getenv("APP_NAME", "FastAPI Backend"),
@@ -27,39 +28,16 @@ app.add_middleware(
 app.add_middleware(LoggingMiddleware)
 
 # Database connection
-client = MongoClient(os.getenv("MONGO_URI"))
+client = MongoClient(MONGO_URI)
 db = client["feedbackDB"]
 collection = db["feedback"]
 
-# Sentiment analyzer setup
-analyzer = SentimentIntensityAnalyzer()
-
-# Function to analyze sentiment
-def analyze_sentiment(text):
-    vader_score = analyzer.polarity_scores(text)['compound']
-    textblob_score = TextBlob(text).sentiment.polarity
-    return "Positive" if vader_score > 0.05 and textblob_score > 0 else "Negative"
-
-@app.get("/")
-def read_root():
-    return {
-        "message": "Hello World from FastAPI!",
-        "app_name": os.getenv("APP_NAME", "FastAPI Backend"),
-        "version": os.getenv("API_VERSION", "v1")
-    }
-
-# API endpoint to submit feedback
+# Insert feedback API (simplified, no sentiment analysis)
 @app.post("/api/submit-feedback")
 async def submit_feedback(feedback_data: dict):
     try:
-        sentiment = analyze_sentiment(feedback_data["comment"])
-        collection.insert_one({
-            "name": feedback_data["name"],
-            "event": feedback_data["event"],
-            "comment": feedback_data["comment"],
-            "sentiment": sentiment
-        })
-        return {"event": feedback_data["event"], "sentiment": sentiment}
+        collection.insert_one(feedback_data)
+        return {"status": "Feedback saved!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -69,10 +47,9 @@ async def feedback_summary():
     try:
         feedbacks = list(collection.find({}, {"_id": 0}))
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
-        
         for feedback in feedbacks:
-            sentiments[feedback["sentiment"].lower()] += 1
-
+            if "sentiment" in feedback and feedback["sentiment"].lower() in sentiments:
+                sentiments[feedback["sentiment"].lower()] += 1
         return {"sentiments": sentiments, "recent_feedback": feedbacks}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
