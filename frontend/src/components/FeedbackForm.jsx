@@ -95,15 +95,15 @@ const FeedbackForm = () => {
 
   if (submitted)
     return (
-      <div className="max-w-2xl mx-auto mt-10 p-8 bg-white shadow-md rounded-xl text-center">
-        <h2 className="text-green-600 mb-4">Thank you for your feedback!</h2>
+      <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100 text-center">
+        <h2 className="text-green-600 mb-4 text-2xl font-bold">Thank you for your feedback!</h2>
         {sentiment && (
           <div className="mt-4 p-3 bg-gray-100 rounded">
             <strong>Sentiment:</strong> {sentiment}
           </div>
         )}
         <button
-          className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 transition"
+          className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-full shadow hover:bg-blue-700 transition text-lg font-semibold"
           onClick={() => {
             setFormData({
               name: "",
@@ -122,10 +122,10 @@ const FeedbackForm = () => {
     );
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-8 bg-white shadow-md rounded-xl">
-      <h2 className="text-3xl font-semibold mb-6 text-center">Submit Feedback Form</h2>
+    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
       {/* Dashboard Section */}
-      <div className="dashboard-section mb-8 p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+      <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
         <div>
           <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
           <span className="dashboard-value">{dashboard.count}</span>
@@ -138,8 +138,7 @@ const FeedbackForm = () => {
       <div className="feedback-form-main">
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
-            className="form-input border-2 border-blue-300 focus:border-blue-600"
-            style={{ borderRadius: 0 }}
+            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
             name="name"
             placeholder="Your Name"
             onChange={handleChange}
@@ -147,8 +146,7 @@ const FeedbackForm = () => {
             required
           />
           <input
-            className="form-input border-2 border-blue-300 focus:border-blue-600"
-            style={{ borderRadius: 0 }}
+            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
             name="event"
             placeholder="Event/Club Name"
             onChange={handleChange}
@@ -157,8 +155,7 @@ const FeedbackForm = () => {
           />
           {/* Event Type Dropdown */}
           <select
-            className="form-select border-2 border-blue-300 focus:border-blue-600"
-            style={{ borderRadius: 0 }}
+            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 mb-4 transition"
             name="eventType"
             value={formData.eventType}
             onChange={handleChange}
@@ -173,8 +170,8 @@ const FeedbackForm = () => {
           </select>
           {/* Rating Slider */}
           <div className="my-4">
-            <label className="block font-semibold mb-2">
-              Rating: <span className="ml-2 text-xl">{getEmojiForRating(formData.rating)} {formData.rating}</span>
+            <label className="block font-semibold mb-2 text-blue-700">
+              Rating: <span className="ml-2 text-xl">{formData.rating}</span>
             </label>
             <input
               type="range"
@@ -182,8 +179,8 @@ const FeedbackForm = () => {
               max="10"
               value={formData.rating}
               onChange={handleSliderChange}
-              className="w-full accent-blue-600"
-              style={{ height: "2.5rem" }}
+              className="w-full accent-blue-600 h-3 rounded-lg appearance-none cursor-pointer mb-2"
+              style={{ accentColor: "#2563eb" }}
             />
             <div className="flex justify-between text-xs mt-1 px-1">
               <span>1</span>
@@ -192,8 +189,7 @@ const FeedbackForm = () => {
             </div>
           </div>
           <textarea
-            className="form-textarea border-2 border-blue-300 focus:border-blue-600"
-            style={{ borderRadius: 0 }}
+            className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
             name="comment"
             placeholder="Your Feedback"
             onChange={handleChange}
@@ -201,10 +197,10 @@ const FeedbackForm = () => {
             required
           />
           {/* Centered Submit Button just below feedback */}
-          <div className="btn-block mt-2">
+          <div className="btn-block mt-2 flex justify-center">
             <button
               type="submit"
-              className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-8 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg font-semibold"
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-10 rounded-full shadow-xl hover:from-blue-600 hover:to-blue-800 transition text-xl font-bold tracking-wide"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Submit"}
@@ -215,14 +211,14 @@ const FeedbackForm = () => {
       {/* Feedback Dashboard */}
       <div className="mt-12">
         <h3 className="text-lg font-semibold mb-4">All Submissions</h3>
-        <div className="feedback-dashboard grid gap-4 max-h-64 overflow-y-auto">
+        <div className="feedback-dashboard grid gap-4 max-h-96 overflow-y-auto bg-blue-50 rounded-2xl p-4">
           {allFeedbacks.length === 0 ? (
             <p className="text-gray-500 text-center">No feedback submitted yet.</p>
           ) : (
             allFeedbacks.map((f, i) => (
               <div
                 key={i}
-                className="feedback-card flex flex-col md:flex-row md:items-center gap-3"
+                className="feedback-card flex flex-col md:flex-row md:items-center gap-4 bg-white border border-blue-100 rounded-2xl shadow p-5 hover:shadow-lg transition"
               >
                 <div className="flex-1">
                   <div className="font-bold text-blue-700">{f.name}</div>
@@ -230,8 +226,7 @@ const FeedbackForm = () => {
                   <div className="mt-1">{f.comment}</div>
                 </div>
                 <div className="flex flex-col items-center min-w-[70px]">
-                  <span style={{ fontSize: "2rem" }}>{getEmojiForRating(Number(f.rating))}</span>
-                  <span className="font-semibold">{f.rating}</span>
+                  <span className="font-semibold text-lg">{f.rating}</span>
                 </div>
               </div>
             ))
