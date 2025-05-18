@@ -5,8 +5,8 @@ pydantic==2.4.2
 fastapi
 uvicorn
 vaderSentiment==3.3.2
-
+pymongo
+pandas
 textblob
-
 
 # Other dependencies...
