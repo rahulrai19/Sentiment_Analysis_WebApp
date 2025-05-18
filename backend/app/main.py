@@ -19,7 +19,7 @@ app = FastAPI(
 # Add middlewares
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow requests from Netlify
+    allow_origins=["https://verbose-feedbacker.netlify.app/"],  # Replace with your actual Netlify URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -13,7 +13,15 @@ export default function FeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE}/submit-feedback`, formData);
+      await axios.post(
+        `${API_BASE}/api/submit-feedback`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setSubmitted(true);
     } catch (error) {
       console.error("Submission failed:", error);
