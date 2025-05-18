@@ -5,27 +5,27 @@ export default function FeedbackForm() {
   const [formData, setFormData] = useState({ name: "", event: "", comment: "" });
   const [submitted, setSubmitted] = useState(false);
 
-  // const handleChange = (e) =>
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   await axios.post("https://your-backend-url/submit-feedback", formData);
-  //   setSubmitted(true);
-  // };
-const API_BASE = process.env.REACT_APP_API_BASE;
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    await axios.post(`${API_BASE}/submit-feedback`, formData);
-    setSubmitted(true);
-  } catch (error) {
-    console.error("Submission failed:", error);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_BASE}/submit-feedback`, formData);
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Submission failed:", error);
+    }
+  };
 
-  if (submitted) return <h2 className="text-green-600 text-center mt-8">Thank you for your feedback!</h2>;
+  if (submitted)
+    return (
+      <h2 className="text-green-600 text-center mt-8">
+        Thank you for your feedback!
+      </h2>
+    );
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
