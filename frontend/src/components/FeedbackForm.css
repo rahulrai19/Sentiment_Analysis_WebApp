@@ -64,7 +64,7 @@ input[type="range"] {
 
 /* Custom slider for rating */
 input[type="range"].rating-slider {
-  width: 100%;
+  width: 300%;
   height: 1.25rem;
   background: transparent;
   cursor: pointer;
