@@ -95,7 +95,7 @@ const FeedbackForm = () => {
 
   if (submitted)
     return (
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl text-center">
+      <div className="max-w-2xl mx-auto mt-10 p-8 bg-white shadow-md rounded-xl text-center">
         <h2 className="text-green-600 mb-4">Thank you for your feedback!</h2>
         {sentiment && (
           <div className="mt-4 p-3 bg-gray-100 rounded">
@@ -122,10 +122,10 @@ const FeedbackForm = () => {
     );
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Submit Feedback Form</h2>
+    <div className="max-w-2xl mx-auto mt-10 p-8 bg-white shadow-md rounded-xl">
+      <h2 className="text-3xl font-semibold mb-6 text-center">Submit Feedback Form</h2>
       {/* Dashboard Section */}
-      <div className="dashboard-section mb-6 p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+      <div className="dashboard-section mb-8 p-4 bg-gray-50 rounded-lg flex justify-between items-center">
         <div>
           <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
           <span className="dashboard-value">{dashboard.count}</span>
@@ -136,9 +136,10 @@ const FeedbackForm = () => {
         </div>
       </div>
       <div className="feedback-form-main">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <input
-            className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
+            className="form-input border-2 border-blue-300 focus:border-blue-600"
+            style={{ borderRadius: 0 }}
             name="name"
             placeholder="Your Name"
             onChange={handleChange}
@@ -146,7 +147,8 @@ const FeedbackForm = () => {
             required
           />
           <input
-            className="form-input border-2 border-blue-300 rounded-full focus:border-blue-600"
+            className="form-input border-2 border-blue-300 focus:border-blue-600"
+            style={{ borderRadius: 0 }}
             name="event"
             placeholder="Event/Club Name"
             onChange={handleChange}
@@ -155,7 +157,8 @@ const FeedbackForm = () => {
           />
           {/* Event Type Dropdown */}
           <select
-            className="form-select border-2 border-blue-300 rounded-full focus:border-blue-600"
+            className="form-select border-2 border-blue-300 focus:border-blue-600"
+            style={{ borderRadius: 0 }}
             name="eventType"
             value={formData.eventType}
             onChange={handleChange}
@@ -189,17 +192,19 @@ const FeedbackForm = () => {
             </div>
           </div>
           <textarea
-            className="form-textarea border-2 border-blue-300 rounded-2xl focus:border-blue-600"
+            className="form-textarea border-2 border-blue-300 focus:border-blue-600"
+            style={{ borderRadius: 0 }}
             name="comment"
             placeholder="Your Feedback"
             onChange={handleChange}
             value={formData.comment}
             required
           />
-          <div className="btn-block">
+          {/* Centered Submit Button just below feedback */}
+          <div className="btn-block mt-2">
             <button
               type="submit"
-              className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-6 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg font-semibold"
+              className="btn bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-8 rounded-full shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg font-semibold"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Submit"}
@@ -208,7 +213,7 @@ const FeedbackForm = () => {
         </form>
       </div>
       {/* Feedback Dashboard */}
-      <div className="mt-10">
+      <div className="mt-12">
         <h3 className="text-lg font-semibold mb-4">All Submissions</h3>
         <div className="feedback-dashboard grid gap-4 max-h-64 overflow-y-auto">
           {allFeedbacks.length === 0 ? (
