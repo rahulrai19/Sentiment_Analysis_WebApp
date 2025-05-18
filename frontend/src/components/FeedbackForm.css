@@ -519,7 +519,7 @@ input[type="range"] {
   margin: 0 auto;
   padding: 2.5rem 2rem;
   background: var(--white);
-  /* border-radius: 2rem; */
+  border-radius: 0.5rem;
   box-shadow: 0 8px 32px rgba(0,0,0,0.10);
   display: flex;
   flex-direction: column;
