@@ -8,7 +8,8 @@ import {
   FaceFrownIcon,
   TrashIcon,
   ChartBarIcon,
-  StarIcon
+  StarIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -207,6 +208,64 @@ function AdminDashboard() {
     }
   };
 
+  const exportToCSV = (eventName = null) => {
+    try {
+      // Filter feedbacks if event name is provided
+      const filteredFeedbacks = eventName 
+        ? feedbacks.filter(f => f.event === eventName)
+        : feedbacks;
+
+      if (filteredFeedbacks.length === 0) {
+        toast.error('No feedback data to export');
+        return;
+      }
+
+      // Define CSV headers
+      const headers = [
+        'Name',
+        'Event',
+        'Event Type',
+        'Comment',
+        'Rating',
+        'Sentiment',
+        'Date'
+      ];
+
+      // Convert feedback data to CSV rows
+      const csvRows = filteredFeedbacks.map(feedback => [
+        feedback.name || '',
+        feedback.event || '',
+        feedback.eventType || '',
+        `"${(feedback.comment || '').replace(/"/g, '""')}"`, // Escape quotes in comments
+        feedback.rating || '',
+        feedback.sentiment || '',
+        feedback.createdAt ? new Date(feedback.createdAt).toLocaleDateString() : ''
+      ]);
+
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+
+      // Create and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `feedback_export_${eventName || 'all'}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Successfully exported ${filteredFeedbacks.length} feedback entries`);
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Failed to export feedback data');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Dashboard Overview Section */}
@@ -250,20 +309,40 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Event Type Filter Dropdown */}
-      <div className="mb-6">
-        <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
-        <select
-          id="eventTypeFilter"
-          value={selectedEventType}
-          onChange={(e) => setSelectedEventType(e.target.value)}
-          className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">All Event Types</option>
-          {EVENT_TYPES.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+      {/* Event Type Filter and Export Section */}
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="w-full sm:w-1/3">
+          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <select
+            id="eventTypeFilter"
+            value={selectedEventType}
+            onChange={(e) => setSelectedEventType(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Event Types</option>
+            {EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportToCSV()}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+            Export All
+          </button>
+          {selectedEventType && (
+            <button
+              onClick={() => exportToCSV(selectedEventType)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+              Export {selectedEventType}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}
