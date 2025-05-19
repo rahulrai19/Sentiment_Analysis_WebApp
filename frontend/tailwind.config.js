@@ -6,11 +6,11 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: "#4F46E5",
-        secondary: "#10B981",
-      },
+      // You can add custom colors here if needed, e.g.:
+      // colors: {
+      //   'custom-blue': '#243c5a',
+      // },
     },
   },
   plugins: [],
-} 
+}
