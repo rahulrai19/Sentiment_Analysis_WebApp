@@ -85,8 +85,14 @@ const FeedbackForm = () => {
     // Fetch unique events from the backend
     getUniqueEvents()
       .then((res) => {
-        setAvailableEvents(res.data.events || []);
-        console.log("Fetched available events:", res.data.events);
+        // Safely check if res, res.data, and res.data.events exist and is an array
+        if (res && res.data && Array.isArray(res.data.events)) {
+          setAvailableEvents(res.data.events);
+          console.log("Fetched available events:", res.data.events);
+        } else {
+          console.error("Error fetching unique events: Unexpected response format", res);
+          setAvailableEvents([]);
+        }
       })
       .catch((error) => {
         console.error("Error fetching unique events:", error);
