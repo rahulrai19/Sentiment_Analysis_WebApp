@@ -13,15 +13,17 @@ export function AuthProvider({ children }) {
     if (!token) return false;
     try {
       const decoded = jwtDecode(token);
-      return decoded && decoded.role === 'admin';
-    } catch {
+      return decoded && decoded.role === 'admin' && decoded.exp > Date.now();
+    } catch (error) {
+      console.error("Failed to decode token:", error);
       return false;
     }
   });
 
   const login = (username, password) => {
     if (username === 'admin' && password === ADMIN_PASSWORD) {
-      const payload = { role: 'admin', exp: Date.now() + 1000 * 60 * 60 * 24 }; // 24h expiry
+      const expiry = Math.floor(Date.now() / 1000) + (60 * 60 * 24); // in seconds
+      const payload = { role: 'admin', exp: expiry };
       const token = jwt_encode(payload, SECRET);
       localStorage.setItem('admin_jwt', token);
       setIsAdmin(true);
@@ -43,5 +45,9 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }
