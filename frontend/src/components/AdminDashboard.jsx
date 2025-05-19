@@ -79,8 +79,8 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Call fetchSummary with the selected event name AND event type
-    fetchSummary(selectedEventName, selectedEventType)
+    // Call fetchSummary with ONLY the selected event type for display data
+    fetchSummary(null, selectedEventType)
       .then(data => {
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         const fetchedFeedbacks = data.recent_feedback || [];
@@ -106,7 +106,7 @@ function AdminDashboard() {
           averageRating: '0.0'
         });
       });
-  }, [selectedEventName, selectedEventType]); // Dependencies include both filters
+  }, [selectedEventType]); // Dependency is ONLY selectedEventType
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -218,13 +218,13 @@ function AdminDashboard() {
 
   const exportToCSV = (eventName = null) => {
     try {
-      // Filter feedbacks by event name
-      const filteredFeedbacks = eventName
-        ? feedbacks.filter(f => f.event === eventName)
+      // Filter feedbacks by event name (using the selectedEventName state)
+      const feedbackToExport = selectedEventName
+        ? feedbacks.filter(f => f.event === selectedEventName)
         : feedbacks;
 
-      if (filteredFeedbacks.length === 0) {
-        toast.error('No feedback data to export for this event');
+      if (feedbackToExport.length === 0) {
+        toast.error('No feedback data to export for the selected event');
         return;
       }
 
@@ -240,7 +240,7 @@ function AdminDashboard() {
       ];
 
       // Convert feedback data to CSV rows
-      const csvRows = filteredFeedbacks.map(feedback => [
+      const csvRows = feedbackToExport.map(feedback => [
         feedback.name || '',
         feedback.event || '',
         feedback.eventType || '',
@@ -261,13 +261,14 @@ function AdminDashboard() {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `feedback_export_${eventName || 'all'}_${new Date().toISOString().split('T')[0]}.csv`);
+      // Use selectedEventName in the filename if available
+      link.setAttribute('download', `feedback_export_${selectedEventName || selectedEventType || 'all'}_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`Successfully exported ${filteredFeedbacks.length} feedback entries for ${eventName || 'all events'}`);
+      toast.success(`Successfully exported ${feedbackToExport.length} feedback entries for ${selectedEventName || selectedEventType || 'all events'}`);
     } catch (error) {
       console.error('Error exporting to CSV:', error);
       toast.error('Failed to export feedback data');
@@ -280,31 +281,31 @@ function AdminDashboard() {
 
       {/* Filter and Export Section */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        {/* Event Name Filter */}
+        {/* Event Name Filter (for Export only) */}
         <div className="w-full sm:w-1/3">
-          <label htmlFor="eventFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Name:</label>
+          <label htmlFor="eventFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter for Export (by Event Name):</label>
           <select
             id="eventFilter"
             value={selectedEventName}
             onChange={(e) => setSelectedEventName(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">All Events</option>
+            <option value="">All Events (for Export)</option>
             {availableEvents.map((event) => (
               <option key={event} value={event}>{event}</option>
             ))}
           </select>
         </div>
-        {/* Event Type Filter */}
+        {/* Event Type Filter (for Display) */}
         <div className="w-full sm:w-1/3">
-          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter for Display (by Event Type):</label>
           <select
             id="eventTypeFilter"
             value={selectedEventType}
             onChange={(e) => setSelectedEventType(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">All Event Types</option>
+            <option value="">All Event Types (for Display)</option>
             {EVENT_TYPES.map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
@@ -317,17 +318,8 @@ function AdminDashboard() {
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-            Export All
+            Export Filtered Data
           </button>
-          {selectedEventName && (
-            <button
-              onClick={() => exportToCSV(selectedEventName)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export {selectedEventName}
-            </button>
-          )}
         </div>
       </div>
 
@@ -346,7 +338,7 @@ function AdminDashboard() {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-blue-400/20">
-              <p className="text-blue-100 text-sm">All time feedback submissions</p>
+              <p className="text-blue-100 text-sm">Feedback submissions for selected type</p>
             </div>
           </div>
 
@@ -365,7 +357,7 @@ function AdminDashboard() {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-yellow-400/20">
-              <p className="text-yellow-100 text-sm">Overall event satisfaction</p>
+              <p className="text-yellow-100 text-sm">Overall satisfaction for selected type</p>
             </div>
           </div>
         </div>
@@ -381,10 +373,10 @@ function AdminDashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventName || selectedEventType ? `for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'All Events'}`}>
+        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventType ? `for ${selectedEventType}` : 'All Event Types'}`}>
           <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
         </ChartCard>
-        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventName || selectedEventType ? `for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'All Events'}`}>
+        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventType ? `for ${selectedEventType}` : 'All Event Types'}`}>
           <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
         </ChartCard>
       </div>
@@ -454,7 +446,7 @@ function AdminDashboard() {
       {/* Feedback Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{selectedEventName || selectedEventType ? `Recent Feedback for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'Recent Feedback'}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{selectedEventType ? `Recent Feedback for ${selectedEventType}` : 'Recent Feedback'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
