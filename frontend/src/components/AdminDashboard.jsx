@@ -72,33 +72,34 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Calculate dashboard stats whenever feedbacks change
-    if (feedbacks.length > 0) {
-      const totalSubmissions = feedbacks.length;
-      const totalRating = feedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0);
-      const averageRating = (totalRating / totalSubmissions).toFixed(1);
-
-      setDashboardStats({
-        totalSubmissions,
-        averageRating
-      });
-    }
-  }, [feedbacks]);
-
-  useEffect(() => {
     // Call fetchSummary with the selected event name
     fetchSummary(selectedEventName)
       .then(data => {
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
-        setFeedbacks(data.recent_feedback || []);
+        const fetchedFeedbacks = data.recent_feedback || [];
+        setFeedbacks(fetchedFeedbacks); // Update feedbacks state
+
+        // Calculate and update dashboard stats based on the fetched data
+        const totalSubmissions = fetchedFeedbacks.length;
+        const totalRating = fetchedFeedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0);
+        const averageRating = totalSubmissions > 0 ? (totalRating / totalSubmissions).toFixed(1) : '0.0';
+
+        setDashboardStats({
+          totalSubmissions,
+          averageRating
+        });
       })
       .catch(error => {
         console.error("Error fetching feedback summary:", error);
         // Optionally reset data or show error state
         setSentimentCounts({ positive: 0, neutral: 0, negative: 0 });
         setFeedbacks([]);
+        setDashboardStats({ // Reset stats on error
+          totalSubmissions: 0,
+          averageRating: '0.0'
+        });
       });
-  }, [selectedEventName]);
+  }, [selectedEventName]); // Dependency changed to selectedEventName
 
   // Helper function to format date
   const formatDate = (dateString) => {
