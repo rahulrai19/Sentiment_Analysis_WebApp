@@ -9,6 +9,9 @@ from textblob import TextBlob
 from pymongo import MongoClient
 from pydantic import BaseModel
 import datetime
+from typing import List, Optional
+import motor.motor_asyncio
+from bson import ObjectId
 
 # Load environment variables
 load_dotenv()
@@ -141,6 +144,47 @@ async def db_status():
         return {"status": "ok"}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
+
+# New endpoints for event management
+@app.get("/api/events")
+async def get_events():
+    try:
+        # Get unique events from feedbacks collection
+        pipeline = [
+            {"$group": {"_id": "$event"}},
+            {"$project": {"_id": 0, "name": "$_id"}},
+            {"$sort": {"name": 1}}
+        ]
+        events = await db.feedbacks.aggregate(pipeline).to_list(length=None)
+        return {"events": [event["name"] for event in events]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/events")
+async def add_event(event: Event):
+    try:
+        # Check if event already exists
+        existing_event = await db.feedbacks.find_one({"event": event.name})
+        if existing_event:
+            raise HTTPException(status_code=400, detail="Event already exists")
+        
+        # Add a dummy feedback entry to create the event
+        # This ensures the event appears in the unique events list
+        await db.feedbacks.insert_one({
+            "event": event.name,
+            "name": "System",
+            "eventType": "Other",
+            "comment": "Event created",
+            "rating": 0,
+            "sentiment": "neutral",
+            "submissionDate": datetime.datetime.utcnow()
+        })
+        
+        return {"message": "Event added successfully"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Include existing routes
 app.include_router(router, prefix="/api")

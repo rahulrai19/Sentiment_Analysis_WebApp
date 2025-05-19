@@ -41,7 +41,25 @@ const fetchSummary = async (eventType = null) => {
 function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
-  const [selectedEventType, setSelectedEventType] = useState(''); // State for selected event type
+  const [selectedEventType, setSelectedEventType] = useState('');
+  const [newEventName, setNewEventName] = useState('');
+  const [addEventLoading, setAddEventLoading] = useState(false);
+  const [addEventSuccess, setAddEventSuccess] = useState(false);
+  const [availableEvents, setAvailableEvents] = useState([]);
+
+  useEffect(() => {
+    // Fetch available events when component mounts
+    const fetchAvailableEvents = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/events`);
+        setAvailableEvents(response.data.events || []);
+      } catch (error) {
+        console.error("Error fetching available events:", error);
+      }
+    };
+
+    fetchAvailableEvents();
+  }, []);
 
   useEffect(() => {
     // Call fetchSummary with the selected event type
@@ -117,6 +135,31 @@ function AdminDashboard() {
     }
   };
 
+  const handleAddEvent = async (e) => {
+    e.preventDefault();
+    if (!newEventName.trim()) {
+      alert('Please enter an event name.');
+      return;
+    }
+    setAddEventLoading(true);
+    setAddEventSuccess(false);
+    try {
+      // Add new event to backend
+      await axios.post(`${API_BASE}/api/events`, { name: newEventName });
+      
+      // Update local state with new event
+      setAvailableEvents(prevEvents => [...prevEvents, newEventName]);
+      setAddEventSuccess(true);
+      setNewEventName(''); // Clear input on success
+    } catch (error) {
+      console.error("Error adding new event:", error);
+      alert('Failed to add event.');
+    } finally {
+      setAddEventLoading(false);
+      setTimeout(() => setAddEventSuccess(false), 3000);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Event Type Filter Dropdown */}
@@ -152,6 +195,59 @@ function AdminDashboard() {
         <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventType ? `for ${selectedEventType}` : 'All Types'}`}>
           <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
         </ChartCard>
+      </div>
+
+      {/* Section to Add New Event */}
+      <div className="add-event-section mb-8 p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl border border-green-100 shadow">
+        <h3 className="text-2xl font-bold mb-4 text-green-700">Manage Events/Clubs</h3>
+        
+        {/* Display Existing Events */}
+        <div className="mb-6">
+          <h4 className="text-lg font-semibold text-gray-700 mb-3">Existing Events:</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {availableEvents.map((event, index) => (
+              <div 
+                key={index}
+                className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between"
+              >
+                <span className="text-gray-700">{event}</span>
+                <span className="text-xs text-gray-500">#{index + 1}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Add New Event Form */}
+        <div className="border-t border-green-200 pt-4">
+          <h4 className="text-lg font-semibold text-gray-700 mb-3">Add New Event:</h4>
+          <form onSubmit={handleAddEvent} className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              className="flex-grow form-input border border-green-300 focus:border-green-600 focus:ring-2 focus:ring-green-200 rounded-xl bg-green-50 placeholder:text-green-400 text-lg py-3 px-4 transition hover:border-green-500 hover:shadow-md"
+              placeholder="Enter New Event Name"
+              value={newEventName}
+              onChange={(e) => setNewEventName(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-green-500 to-green-700 text-white py-3 px-8 rounded-full shadow-xl hover:from-green-600 hover:to-green-800 transition text-lg font-bold tracking-wide flex items-center justify-center"
+              disabled={addEventLoading}
+            >
+              {addEventLoading ? (
+                <svg className="animate-spin h-5 w-5 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                "Add Event"
+              )}
+            </button>
+          </form>
+          {addEventSuccess && (
+            <p className="mt-3 text-center text-green-600 font-semibold">Event added successfully!</p>
+          )}
+        </div>
       </div>
 
       {/* Feedback Table */}
