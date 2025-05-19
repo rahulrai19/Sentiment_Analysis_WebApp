@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Link, useLocation } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
 import AdminDashboard from "./components/AdminDashboard";
@@ -82,23 +82,20 @@ function NavBar() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <>
-    <Router>
-      <Toaster position="top-center" />
-      <NavBar />
-      <Routes>
-        <Route path="/" element={
-          <>
-            <HeroSection />
-            <FeedbackForm />
-          </>
-        } />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/submit" element={<FeedbackForm />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </Router>
-    <Footer />
-  </>
+  <BrowserRouter>
+    <Toaster position="top-center" />
+    <NavBar />
+    <Routes>
+      <Route path="/" element={
+        <>
+          <HeroSection />
+          <FeedbackForm />
+        </>
+      } />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/submit" element={<FeedbackForm />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  </BrowserRouter>
 )
