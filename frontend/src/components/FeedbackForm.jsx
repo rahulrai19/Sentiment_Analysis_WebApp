@@ -221,10 +221,6 @@ const FeedbackForm = () => {
                 <div className="flex-1">
                   <div className="font-bold text-blue-700">{f.name}</div>
                   <div className="text-sm text-gray-500">{f.event} &mdash; {f.eventType}</div>
-                  <div className="mt-1">{f.comment}</div>
-                </div>
-                <div className="flex flex-col items-center min-w-[70px]">
-                  <span className="font-semibold text-lg">{f.rating}</span>
                 </div>
               </div>
             ))
