@@ -31,7 +31,7 @@ function FeedbackSubmission() {
     setIsSubmitting(true);
     
     try {
-      await fetch('https://sentiment-s0y3.onrender.com/api/submit-feedback', {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/submit-feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
