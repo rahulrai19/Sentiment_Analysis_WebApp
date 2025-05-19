@@ -35,6 +35,7 @@ function AdminDashboard() {
   useEffect(() => {
     fetchSummary()
       .then(data => {
+        console.log("Received feedback data:", data); // Debug log
         // Update counts and feedback list
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         setFeedbacks(data.recent_feedback || []);
@@ -43,6 +44,25 @@ function AdminDashboard() {
         console.error("Error fetching feedback summary:", error);
       });
   }, []);
+
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    try {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error, "for date:", dateString);
+      return '-';
+    }
+  };
 
   const pieChartData = {
     labels: ['Positive', 'Neutral', 'Negative'],
@@ -132,13 +152,7 @@ function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.submissionDate ? new Date(item.submissionDate).toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : '-'}
+                    {formatDate(item.submissionDate)}
                   </td>
                 </tr>
               ))}
