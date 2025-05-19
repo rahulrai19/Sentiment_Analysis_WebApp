@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import jwt_encode from 'jwt-encode';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('admin_jwt');
     if (!token) return false;
     try {
-      const decoded = jwt_decode(token);
+      const decoded = jwtDecode(token);
       return decoded && decoded.role === 'admin';
     } catch {
       return false;
