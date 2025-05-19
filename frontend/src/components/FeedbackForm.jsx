@@ -131,7 +131,7 @@ const FeedbackForm = () => {
     );
 
   return (
-    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
+    <div className="max-w-3xl mx-auto p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
       <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
       {/* Dashboard Section */}
       <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
@@ -147,7 +147,7 @@ const FeedbackForm = () => {
       <div className="feedback-form-main">
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
-            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
+            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 transition hover:border-blue-500 hover:shadow-md"
             name="name"
             placeholder="Your Name"
             onChange={handleChange}
@@ -156,7 +156,7 @@ const FeedbackForm = () => {
             id="name"
           />
           <input
-            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
+            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 transition hover:border-blue-500 hover:shadow-md"
             name="event"
             placeholder="Event/Club Name"
             onChange={handleChange}
@@ -165,8 +165,8 @@ const FeedbackForm = () => {
           />
           {/* Event Type Dropdown */}
           <select
-            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 mb-4 transition"
-            id="event"
+            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
+            id="eventType"
             name="eventType"
             value={formData.eventType}
             onChange={handleChange}
