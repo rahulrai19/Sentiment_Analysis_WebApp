@@ -72,7 +72,7 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Call fetchSummary with the selected event name
+    // Call fetchSummary with the selected event name and update all related states
     fetchSummary(selectedEventName)
       .then(data => {
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
@@ -99,7 +99,7 @@ function AdminDashboard() {
           averageRating: '0.0'
         });
       });
-  }, [selectedEventName]); // Dependency changed to selectedEventName
+  }, [selectedEventName]); // Dependency is selectedEventName
 
   // Helper function to format date
   const formatDate = (dateString) => {
