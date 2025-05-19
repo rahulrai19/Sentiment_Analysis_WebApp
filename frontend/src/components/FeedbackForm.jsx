@@ -76,7 +76,11 @@ const FeedbackForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await submitFeedback(formData);
+      const feedbackWithDate = {
+        ...formData,
+        submissionDate: new Date().toISOString()
+      };
+      const response = await submitFeedback(feedbackWithDate);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
     } catch (error) {
