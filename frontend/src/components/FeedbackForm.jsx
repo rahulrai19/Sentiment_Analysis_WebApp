@@ -91,7 +91,7 @@ const FeedbackForm = () => {
         console.error("Error fetching unique events:", error);
         setAvailableEvents([]);
       });
-  }, [submitted]);
+  }, []);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
