@@ -84,29 +84,31 @@ function NavBar() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <AuthProvider>
-    <>
-      <Router>
-        <Toaster position="top-center" />
-        <NavBar />
-        <Routes>
-          <Route path="/" element={
-            <>
-              <HeroSection />
-              <FeedbackForm />
-            </>
-          } />
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/submit" element={<FeedbackForm />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Router>
-      <Footer />
-    </>
-  </AuthProvider>
+  <Router>
+    <Toaster position="top-center" />
+    <NavBar />
+    <Routes>
+      <Route path="/" element={
+        <>
+          <HeroSection />
+          <FeedbackForm />
+        </>
+      } />
+      <Route path="/admin" element={
+        <AuthProvider>
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        </AuthProvider>
+      } />
+      <Route path="/login" element={
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      } />
+      <Route path="/submit" element={<FeedbackForm />} />
+      <Route path="/about" element={<About />} />
+    </Routes>
+    <Footer />
+  </Router>
 )
