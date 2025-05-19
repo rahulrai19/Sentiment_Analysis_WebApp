@@ -8,6 +8,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 from pymongo import MongoClient
 from pydantic import BaseModel
+import datetime
 
 # Load environment variables
 load_dotenv()
@@ -100,6 +101,7 @@ async def submit_feedback(feedback: FeedbackIn):
     sentiment = analyze_sentiment(feedback.comment)
     feedback_dict = feedback.model_dump()  # For Pydantic v2+
     feedback_dict["sentiment"] = sentiment
+    feedback_dict["submissionDate"] = datetime.datetime.utcnow().isoformat()  # Add submission date
     collection.insert_one(feedback_dict)
     return {"status": "Feedback saved!", "sentiment": sentiment}
 
