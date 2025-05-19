@@ -5,9 +5,11 @@ import {
   ChatBubbleLeftIcon, 
   FaceSmileIcon, 
   MinusCircleIcon, 
-  FaceFrownIcon 
+  FaceFrownIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -160,6 +162,22 @@ function AdminDashboard() {
     }
   };
 
+  const handleDeleteEvent = async (eventName) => {
+    if (!window.confirm(`Are you sure you want to delete "${eventName}"?`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_BASE}/api/events`, { data: { name: eventName } });
+      // Update local state by removing the deleted event
+      setAvailableEvents(prevEvents => prevEvents.filter(event => event !== eventName));
+      toast.success('Event deleted successfully');
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast.error('Failed to delete event');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Event Type Filter Dropdown */}
@@ -208,10 +226,19 @@ function AdminDashboard() {
             {availableEvents.map((event, index) => (
               <div 
                 key={index}
-                className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between"
+                className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between group hover:border-red-200 transition-colors"
               >
                 <span className="text-gray-700">{event}</span>
-                <span className="text-xs text-gray-500">#{index + 1}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">#{index + 1}</span>
+                  <button
+                    onClick={() => handleDeleteEvent(event)}
+                    className="p-1 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Delete event"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
