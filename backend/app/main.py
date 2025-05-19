@@ -21,7 +21,9 @@ app = FastAPI(
 # Allow CORS from any origin (adjust for production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or specify your frontend domain
+    allow_origins=[
+        "https://verbose-feedbacker.netlify.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
