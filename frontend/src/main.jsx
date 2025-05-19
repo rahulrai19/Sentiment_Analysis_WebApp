@@ -10,6 +10,8 @@ import Login from "./components/Login";
 import Footer from "./components/Footer";
 import './index.css'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { AuthProvider } from "./components/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Simple navigation bar component
 function NavBar() {
@@ -91,10 +93,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <FeedbackForm />
         </>
       } />
-      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin" element={
+        <AuthProvider>
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        </AuthProvider>
+      } />
+      <Route path="/login" element={
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      } />
       <Route path="/submit" element={<FeedbackForm />} />
       <Route path="/about" element={<About />} />
-      <Route path="/login" element={<Login />} />
       <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
     </Routes>
     <Footer />
