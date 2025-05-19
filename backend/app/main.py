@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 from pymongo import MongoClient
+from pydantic import BaseModel
 
 # Load environment variables
 load_dotenv()
@@ -45,6 +46,13 @@ def analyze_sentiment(text):
     else:
         return "Neutral"
 
+class FeedbackIn(BaseModel):
+    name: str
+    event: str
+    eventType: str
+    comment: str
+    rating: int
+
 # Submit feedback endpoint
 @app.post("/submit-feedback")
 async def submit_feedback(request: Request):
@@ -63,7 +71,9 @@ async def submit_feedback(request: Request):
 # Get all feedbacks endpoint
 @app.get("/feedbacks")
 async def get_all_feedbacks():
-    return feedback_data
+    # Return all feedbacks from MongoDB (not in-memory)
+    data = list(collection.find({}, {"_id": 0}))
+    return data
 
 # API endpoint to fetch feedback summary
 @app.get("/api/feedback-summary")
@@ -80,16 +90,26 @@ async def feedback_summary():
 
 # Submit feedback to database endpoint
 @app.post("/api/submit-feedback")
-async def submit_feedback(feedback: dict):
+async def submit_feedback(feedback: FeedbackIn):
     try:
-        collection.insert_one(feedback)
-        return {"status": "Feedback saved!"}
+        # Analyze sentiment on the comment
+        sentiment = analyze_sentiment(feedback.comment)
+        feedback_dict = feedback.dict()
+        feedback_dict["sentiment"] = sentiment
+        collection.insert_one(feedback_dict)
+        return {"status": "Feedback saved!", "sentiment": sentiment}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/test-insert")
 async def test_insert():
-    test_feedback = {"name": "John", "comment": "Great event!"}
+    test_feedback = {
+        "name": "John",
+        "event": "Annual Meeting",
+        "eventType": "Conference",
+        "comment": "Great event!",
+        "rating": 5
+    }
     collection.insert_one(test_feedback)
     return {"status": "Test data inserted!"}
 
