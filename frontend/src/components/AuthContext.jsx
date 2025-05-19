@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import jwt_encode from 'jwt-encode';
+
 import { jwt_decode } from 'jwt-decode';
 
 const AuthContext = createContext();
@@ -12,16 +13,18 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('admin_jwt');
     if (!token) return false;
     try {
-      const decoded = jwt_decode(token);
-      return decoded && decoded.role === 'admin';
-    } catch {
+      const decoded = jwtDecode(token);
+      return decoded && decoded.role === 'admin' && decoded.exp > Date.now();
+    } catch (error) {
+      console.error("Failed to decode token:", error);
       return false;
     }
   });
 
   const login = (username, password) => {
     if (username === 'admin' && password === ADMIN_PASSWORD) {
-      const payload = { role: 'admin', exp: Date.now() + 1000 * 60 * 60 * 24 }; // 24h expiry
+      const expiry = Math.floor(Date.now() / 1000) + (60 * 60 * 24); // in seconds
+      const payload = { role: 'admin', exp: expiry };
       const token = jwt_encode(payload, SECRET);
       localStorage.setItem('admin_jwt', token);
       setIsAdmin(true);
@@ -43,5 +46,9 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

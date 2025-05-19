@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { submitFeedback, getFeedbacks } from "../services/api";
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { submitFeedback, getFeedbacks, getUniqueEvents } from "../services/api";
+import { Bars3Icon, ChatBubbleLeftIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 
 const EVENT_TYPES = [
   "Workshop",
@@ -53,33 +53,51 @@ const FeedbackForm = () => {
   const [loading, setLoading] = useState(false);
 
   // Dashboard state
-  const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
+  const [dashboard, setDashboard] = useState({ count: 0, totalEvents: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
 
-  // Fetch dashboard data (number of submissions and average rating)
+  // New state for available events
+  const [availableEvents, setAvailableEvents] = useState([]);
+
+  // Fetch dashboard data AND the list of unique events
   useEffect(() => {
+    // Fetch dashboard data AND the list of unique events
     getFeedbacks()
       .then((res) => {
         const feedbacks = res.data || [];
         setAllFeedbacks(feedbacks);
         const count = feedbacks.length;
-        const ratings = feedbacks
-          .map((f) => Number(f.rating))
-          .filter((r) => !isNaN(r));
-        const avgRating =
-          ratings.length > 0
-            ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
-            : 0;
-        setDashboard({ count, avgRating });
+        setDashboard(prev => ({ ...prev, count }));
       })
-      .catch(() => {
-        setDashboard({ count: 0, avgRating: 0 });
+      .catch((error) => {
+        console.error("Error fetching feedbacks:", error);
+        setDashboard({ count: 0, totalEvents: 0 });
         setAllFeedbacks([]);
       });
-  }, [submitted]);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Fetch unique events from the backend
+    getUniqueEvents()
+      .then((res) => {
+        if (res && Array.isArray(res.events)) {
+          setAvailableEvents(res.events);
+          setDashboard(prev => ({ ...prev, totalEvents: res.events.length }));
+          console.log("Fetched available events:", res.events);
+        } else {
+          console.error("Error fetching unique events: Unexpected response format", res);
+          setAvailableEvents([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching unique events:", error);
+        setAvailableEvents([]);
+      });
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log("Handling change for:", name, "with value:", value);
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSliderChange = (e) => {
     setFormData({ ...formData, rating: Number(e.target.value) });
@@ -96,6 +114,15 @@ const FeedbackForm = () => {
       const response = await submitFeedback(feedbackWithDate);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
+      // Optionally re-fetch events after submitting
+      getUniqueEvents()
+        .then((res) => {
+          setAvailableEvents(res.data.events || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching unique events after submission:", error);
+          setAvailableEvents([]);
+        });
     } catch (error) {
       console.error("Submission failed:", error);
     }
@@ -135,13 +162,23 @@ const FeedbackForm = () => {
       <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
       {/* Dashboard Section */}
       <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
-        <div>
-          <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
-          <span className="dashboard-value">{dashboard.count}</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-blue-100 p-3 rounded-lg">
+            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
+            <span className="dashboard-value">{dashboard.count}</span>
+          </div>
         </div>
-        <div>
-          <span className="dashboard-label font-semibold">Average Rating:</span>{" "}
-          <span className="dashboard-value">{dashboard.avgRating}</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-blue-100 p-3 rounded-lg">
+            <ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <span className="dashboard-label font-semibold">Live Events:</span>{" "}
+            <span className="dashboard-value">{dashboard.totalEvents}</span>
+          </div>
         </div>
       </div>
       <div className="feedback-form-main">
@@ -155,33 +192,44 @@ const FeedbackForm = () => {
             required
             id="name"
           />
-          <input
-            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 transition hover:border-blue-500 hover:shadow-md"
-            name="event"
-            placeholder="Event/Club Name"
-            onChange={handleChange}
-            value={formData.event}
-            required
-          />
-          {/* Event Type Dropdown */}
-          <select
-            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
-            id="eventType"
-            name="eventType"
-            value={formData.eventType}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Event Type</option>
-            {EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          {/* Rating Slider */}
+          <div>
+            <label htmlFor="event" className="block text-sm font-medium text-gray-700 mb-2">Select Event/Club</label>
+            <select
+              id="event"
+              name="event"
+              value={formData.event}
+              onChange={handleChange}
+              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
+              required
+            >
+              <option value="">Choose an event...</option>
+              {availableEvents.map((eventName, index) => (
+                <option key={index} value={eventName}>
+                  {eventName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 mb-2">Select Event Type</label>
+            <select
+              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
+              id="eventType"
+              name="eventType"
+              value={formData.eventType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Event Type</option>
+              {EVENT_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="my-4">
-            <label className="block font-semibold mb-2 text-blue-700">
+            <label htmlFor="rating" className="block font-semibold mb-2 text-blue-700">
               Rating:
               <span className="ml-2 text-xl align-middle">
                 {getEmojiForRating(formData.rating)} {formData.rating}
@@ -195,23 +243,22 @@ const FeedbackForm = () => {
               onChange={handleSliderChange}
               className="rating-slider mb-2"
               style={{ accentColor: "#2563eb" }}
+              id="rating"
             />
-            <div className="flex justify-between text-xs mt-1 px-1">
-              {/* <span>1</span>
-              <span>5</span>
-              <span>10</span> */}
-            </div>
           </div>
-          <textarea
-            className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
-            name="comment"
-            placeholder="Your Feedback"
-            onChange={handleChange}
-            value={formData.comment}
-            required
-            rows={10}
-          />
-          {/* Centered Submit Button just below feedback */}
+          <div>
+            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">Your Feedback</label>
+            <textarea
+              className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
+              name="comment"
+              placeholder="Your Feedback"
+              onChange={handleChange}
+              value={formData.comment}
+              required
+              rows={4}
+              id="comment"
+            />
+          </div>
           <div className="btn-block mt-2 flex justify-center">
             <button
               type="submit"

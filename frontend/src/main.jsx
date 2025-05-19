@@ -99,31 +99,27 @@ function NavBar() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <Toaster position="top-center" />
-    <NavBar />
-    <Routes>
-      <Route path="/" element={
-        <>
-          <HeroSection />
-          <FeedbackForm />
-        </>
-      } />
-      <Route path="/admin" element={
-        <AuthProvider>
+    <AuthProvider>
+      <Toaster position="top-center" />
+      <NavBar />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <HeroSection />
+            <FeedbackForm />
+          </>
+        } />
+        <Route path="/admin" element={
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
-        </AuthProvider>
-      } />
-      <Route path="/login" element={
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
-      } />
-      <Route path="/submit" element={<FeedbackForm />} />
-      <Route path="/about" element={<About />} />
-      <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
-    </Routes>
-    <Footer />
+        } />
+        <Route path="/login" element={<Login />} />
+        <Route path="/submit" element={<FeedbackForm />} />
+        <Route path="/about" element={<About />} />
+        <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
+      </Routes>
+      <Footer />
+    </AuthProvider>
   </BrowserRouter>
 )
