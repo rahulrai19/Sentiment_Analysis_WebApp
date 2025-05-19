@@ -96,6 +96,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/submit" element={<FeedbackForm />} />
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
+      
     </Routes>
+    <Footer />
   </BrowserRouter>
 )
