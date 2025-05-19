@@ -56,6 +56,16 @@ const FeedbackForm = () => {
   const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
 
+  // Mock events data - replace with actual data from your backend
+  const events = [
+    { id: '1', name: 'Spring Festival 2024' },
+    { id: '2', name: 'Tech Workshop Series' },
+    { id: '3', name: 'Cultural Night' },
+    { id: '4', name: 'Career Fair' },
+    { id: '5', name: 'Sports Tournament' },
+    // ... You've added more events here manually ...
+  ];
+
   // Fetch dashboard data (number of submissions and average rating)
   useEffect(() => {
     getFeedbacks()
@@ -155,14 +165,21 @@ const FeedbackForm = () => {
             required
             id="name"
           />
-          <input
-            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 transition hover:border-blue-500 hover:shadow-md"
+          <select
+            id="event"
             name="event"
-            placeholder="Event/Club Name"
-            onChange={handleChange}
             value={formData.event}
+            onChange={handleChange}
+            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
             required
-          />
+          >
+            <option value="">Choose an event...</option>
+            {events.map((event) => (
+              <option key={event.id} value={event.name}>
+                {event.name}
+              </option>
+            ))}
+          </select>
           {/* Event Type Dropdown */}
           <select
             className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
