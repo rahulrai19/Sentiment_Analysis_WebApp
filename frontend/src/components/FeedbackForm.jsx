@@ -86,6 +86,7 @@ const FeedbackForm = () => {
     getUniqueEvents()
       .then((res) => {
         setAvailableEvents(res.data.events || []);
+        console.log("Fetched available events:", res.data.events);
       })
       .catch((error) => {
         console.error("Error fetching unique events:", error);
@@ -93,8 +94,11 @@ const FeedbackForm = () => {
       });
   }, []);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log("Handling change for:", name, "with value:", value);
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSliderChange = (e) => {
     setFormData({ ...formData, rating: Number(e.target.value) });
