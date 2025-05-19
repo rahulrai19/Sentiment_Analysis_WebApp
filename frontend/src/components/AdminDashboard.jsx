@@ -6,7 +6,9 @@ import {
   FaceSmileIcon, 
   MinusCircleIcon, 
   FaceFrownIcon,
-  TrashIcon
+  TrashIcon,
+  ChartBarIcon,
+  StarIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -49,6 +51,10 @@ function AdminDashboard() {
   const [addEventLoading, setAddEventLoading] = useState(false);
   const [addEventSuccess, setAddEventSuccess] = useState(false);
   const [availableEvents, setAvailableEvents] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalSubmissions: 0,
+    averageRating: 0
+  });
 
   useEffect(() => {
     // Fetch available events when component mounts
@@ -63,6 +69,20 @@ function AdminDashboard() {
 
     fetchAvailableEvents();
   }, []);
+
+  useEffect(() => {
+    // Calculate dashboard stats whenever feedbacks change
+    if (feedbacks.length > 0) {
+      const totalSubmissions = feedbacks.length;
+      const totalRating = feedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0);
+      const averageRating = (totalRating / totalSubmissions).toFixed(1);
+
+      setDashboardStats({
+        totalSubmissions,
+        averageRating
+      });
+    }
+  }, [feedbacks]);
 
   useEffect(() => {
     // Call fetchSummary with the selected event type
@@ -189,20 +209,61 @@ function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Dashboard Overview Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Total Submissions Card */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-[1.02] transition-all duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm font-medium mb-1">Total Submissions</p>
+                <p className="text-3xl font-bold">{dashboardStats.totalSubmissions}</p>
+              </div>
+              <div className="bg-blue-400/20 p-3 rounded-lg">
+                <ChartBarIcon className="h-8 w-8" />
+              </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-blue-400/20">
+              <p className="text-blue-100 text-sm">All time feedback submissions</p>
+            </div>
+          </div>
+
+          {/* Average Rating Card */}
+          <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-[1.02] transition-all duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-yellow-100 text-sm font-medium mb-1">Average Rating</p>
+                <div className="flex items-center">
+                  <p className="text-3xl font-bold">{dashboardStats.averageRating}</p>
+                  <span className="ml-2 text-yellow-100">/ 10</span>
+                </div>
+              </div>
+              <div className="bg-yellow-400/20 p-3 rounded-lg">
+                <StarIcon className="h-8 w-8" />
+              </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-yellow-400/20">
+              <p className="text-yellow-100 text-sm">Overall event satisfaction</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Event Type Filter Dropdown */}
       <div className="mb-6">
-          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
-          <select
-              id="eventTypeFilter"
-              value={selectedEventType}
-              onChange={(e) => setSelectedEventType(e.target.value)}
-              className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          >
-              <option value="">All Event Types</option> {/* Option to view all */}
-              {EVENT_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-              ))}
-          </select>
+        <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+        <select
+          id="eventTypeFilter"
+          value={selectedEventType}
+          onChange={(e) => setSelectedEventType(e.target.value)}
+          className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">All Event Types</option>
+          {EVENT_TYPES.map((type) => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
       </div>
 
       {/* Summary Cards */}
