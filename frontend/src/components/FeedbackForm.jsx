@@ -261,7 +261,7 @@ const FeedbackForm = () => {
               onChange={handleChange}
               value={formData.comment}
               required
-              rows={8}
+              rows={5}
               cols={50}
               id="comment"
             />
