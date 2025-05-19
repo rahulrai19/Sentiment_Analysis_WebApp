@@ -19,7 +19,8 @@ const EVENT_TYPES = [
   "Workshop", "Seminar", "Competition", "Meetup", "Webinar", "Other"
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL;
+// Update the API base URL to use the correct backend URL
+const API_BASE = 'https://sentiment-s0y3.onrender.com';
 
 const submitFeedback = async (formData) => {
   await axios.post(`${API_BASE}/api/submit-feedback`, formData);
@@ -168,19 +169,21 @@ function AdminDashboard() {
     }
 
     try {
-      // Send the event name as a query parameter instead of in the body
-      await axios.delete(`${API_BASE}/api/events/${encodeURIComponent(eventName)}`);
+      const response = await axios.delete(`${API_BASE}/api/events/${encodeURIComponent(eventName)}`);
       
-      // Update local state by removing the deleted event
-      setAvailableEvents(prevEvents => prevEvents.filter(event => event !== eventName));
-      toast.success('Event deleted successfully');
-      
-      // Refresh the events list to ensure sync with backend
-      const response = await axios.get(`${API_BASE}/api/events`);
-      setAvailableEvents(response.data.events || []);
+      if (response.data.message) {
+        // Update local state by removing the deleted event
+        setAvailableEvents(prevEvents => prevEvents.filter(event => event !== eventName));
+        toast.success(response.data.message);
+        
+        // Refresh the events list to ensure sync with backend
+        const eventsResponse = await axios.get(`${API_BASE}/api/events`);
+        setAvailableEvents(eventsResponse.data.events || []);
+      }
     } catch (error) {
       console.error('Error deleting event:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete event. Please try again.');
+      const errorMessage = error.response?.data?.detail || 'Failed to delete event. Please try again.';
+      toast.error(errorMessage);
     }
   };
 

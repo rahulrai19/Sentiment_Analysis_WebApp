@@ -199,6 +199,21 @@ async def add_event(event: Event):
         print(f"Error in add_event: {e}") # Log the error for debugging
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.delete("/api/events/{event_name}")
+async def delete_event(event_name: str):
+    try:
+        # Delete all feedback entries for this event
+        result = await collection.delete_many({"event": event_name})
+        
+        if result.deleted_count > 0:
+            return {"message": f"Event '{event_name}' and its feedbacks deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail=f"Event '{event_name}' not found")
+            
+    except Exception as e:
+        print(f"Error deleting event: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include existing routes
 # app.include_router(router, prefix="/api") # Check if this is still needed or if all routes are in main.py now
 
