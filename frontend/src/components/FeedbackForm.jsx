@@ -131,7 +131,7 @@ const FeedbackForm = () => {
     );
 
   return (
-    <div className="max-w-3xl mx-auto p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
+    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
       <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
       {/* Dashboard Section */}
       <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
@@ -209,6 +209,7 @@ const FeedbackForm = () => {
             onChange={handleChange}
             value={formData.comment}
             required
+            rows={10}
           />
           {/* Centered Submit Button just below feedback */}
           <div className="btn-block mt-2 flex justify-center">
