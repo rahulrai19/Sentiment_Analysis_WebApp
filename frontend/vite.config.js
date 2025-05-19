@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import postcss from './postcss.config.js'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   base: './',
   plugins: [react()],
@@ -11,6 +11,6 @@ export default defineConfig({
     host: true
   },
   css: {
-    postcss
+    postcss: './postcss.config.js' // Explicitly point to the config file
   }
 })
