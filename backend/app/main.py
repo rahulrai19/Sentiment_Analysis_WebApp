@@ -78,16 +78,27 @@ async def get_all_feedbacks():
     data = list(collection.find({}, {"_id": 0}))
     return data
 
-# API endpoint to fetch feedback summary
+# API endpoint to fetch feedback summary with optional event type filter
 @app.get("/api/feedback-summary")
-async def feedback_summary():
+async def feedback_summary(eventType: str | None = None):
+    """
+    Get feedback sentiment summary and recent feedbacks, optionally filtered by event type.
+    """
     try:
-        feedbacks = list(collection.find({}, {"_id": 0}))
+        # Build the query filter
+        filter_query = {}
+        if eventType:
+            filter_query["eventType"] = eventType
+
+        feedbacks = list(collection.find(filter_query, {"_id": 0}))
+
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
         for feedback in feedbacks:
             if "sentiment" in feedback and feedback["sentiment"].lower() in sentiments:
                 sentiments[feedback["sentiment"].lower()] += 1
+
         return {"sentiments": sentiments, "recent_feedback": feedbacks}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

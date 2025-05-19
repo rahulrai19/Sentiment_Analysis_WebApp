@@ -12,6 +12,11 @@ import axios from 'axios';
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
+// You might need to import EVENT_TYPES or define them here if not imported
+const EVENT_TYPES = [
+  "Workshop", "Seminar", "Competition", "Meetup", "Webinar", "Other"
+];
+
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const submitFeedback = async (formData) => {
@@ -23,27 +28,35 @@ const fetchFeedbacks = async () => {
   return res.data;
 };
 
-const fetchSummary = async () => {
-  const res = await axios.get(`${API_BASE}/api/feedback-summary`);
+const fetchSummary = async (eventType = null) => {
+  let url = `${API_BASE}/api/feedback-summary`;
+  if (eventType) {
+    // Add eventType as a query parameter
+    url += `?eventType=${encodeURIComponent(eventType)}`;
+  }
+  const res = await axios.get(url);
   return res.data;
 };
 
 function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
+  const [selectedEventType, setSelectedEventType] = useState(''); // State for selected event type
 
   useEffect(() => {
-    fetchSummary()
+    // Call fetchSummary with the selected event type
+    fetchSummary(selectedEventType)
       .then(data => {
-        console.log("Received feedback data:", data); // Debug log
-        // Update counts and feedback list
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         setFeedbacks(data.recent_feedback || []);
       })
       .catch(error => {
         console.error("Error fetching feedback summary:", error);
+        // Optionally reset data or show error state
+        setSentimentCounts({ positive: 0, neutral: 0, negative: 0 });
+        setFeedbacks([]);
       });
-  }, []);
+  }, [selectedEventType]); // <-- Re-fetch when selectedEventType changes
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -106,9 +119,25 @@ function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Event Type Filter Dropdown */}
+      <div className="mb-6">
+          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <select
+              id="eventTypeFilter"
+              value={selectedEventType}
+              onChange={(e) => setSelectedEventType(e.target.value)}
+              className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          >
+              <option value="">All Event Types</option> {/* Option to view all */}
+              {EVENT_TYPES.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+              ))}
+          </select>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <SummaryCard icon={<ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />} label="Total Feedback" value={feedbacks.length} bg="blue-50" />
+        <SummaryCard icon={<ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />} label="Total Feedback" value={feedbacks.length} bg="blue-50" /> {/* Note: Total count is only for the filtered list here */}
         <SummaryCard icon={<FaceSmileIcon className="h-6 w-6 text-green-600" />} label="Positive" value={sentimentCounts.positive} bg="green-50" />
         <SummaryCard icon={<MinusCircleIcon className="h-6 w-6 text-yellow-600" />} label="Neutral" value={sentimentCounts.neutral} bg="yellow-50" />
         <SummaryCard icon={<FaceFrownIcon className="h-6 w-6 text-red-600" />} label="Negative" value={sentimentCounts.negative} bg="red-50" />
@@ -116,10 +145,11 @@ function AdminDashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <ChartCard title="Sentiment Distribution (Pie)">
+        {/* Charts now automatically reflect filtered data via sentimentCounts */}
+        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventType ? `for ${selectedEventType}` : 'All Types'}`}>
           <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
         </ChartCard>
-        <ChartCard title="Sentiment Distribution (Bar)">
+        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventType ? `for ${selectedEventType}` : 'All Types'}`}>
           <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
         </ChartCard>
       </div>
@@ -127,35 +157,41 @@ function AdminDashboard() {
       {/* Feedback Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Feedback</h3>
+          {/* Table shows recent feedback for the filtered type */}
+          <h3 className="text-lg font-semibold text-gray-900">{selectedEventType ? `Recent ${selectedEventType} Feedback` : 'Recent Feedback'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Name', 'Event', 'Type', 'Feedback', 'Rating', 'Sentiment', 'Submission Date'].map(header => (
+                {/* Ensure your headers match your feedback object keys */}
+                {['Name', 'Event', 'Type', 'Comment', 'Rating', 'Sentiment', 'Date'].map(header => (
                   <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {feedbacks.slice().reverse().map((item, idx) => (
+              {/* Display feedbacks filtered by the backend */}
+              {feedbacks.slice().reverse().map((item, idx) => ( // Ensure item keys match your data structure
                 <tr key={item._id || idx} className="hover:bg-blue-50 transition cursor-pointer">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{item.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{item.event}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.eventType}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.comment}</td>
-                  <td className="px-6 py-4 text-sm text-blue-700 font-bold">{item.rating}</td>
+                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{item.name || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{item.event || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.eventType || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.comment || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-blue-700 font-bold">{item.rating || '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSentimentColor(item.sentiment)}`}>
                       {item.sentiment ? item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1) : '-'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(item.submissionDate)}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td> {/* Assuming 'createdAt' field */}
                 </tr>
               ))}
+               {feedbacks.length === 0 && (
+                  <tr>
+                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">No feedback found for this type.</td>
+                  </tr>
+                )}
             </tbody>
           </table>
         </div>
