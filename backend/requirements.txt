@@ -1,5 +1,5 @@
-fastapi==0.104.1
-uvicorn==0.24.0
+fastapi==0.111.0
+uvicorn==0.30.1
 python-dotenv==1.0.0
 pydantic==2.4.2 
 fastapi
@@ -7,8 +7,9 @@ uvicorn
 vaderSentiment==3.3.2
 pymongo
 pandas
-textblob
+textblob==0.18.0.post0
 Pydantic
+motor
 
 
 # Other dependencies...
