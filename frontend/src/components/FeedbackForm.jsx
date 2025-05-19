@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { submitFeedback, getFeedbacks } from "../services/api";
+import { submitFeedback, getFeedbacks, getUniqueEvents } from "../services/api";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 
 const EVENT_TYPES = [
@@ -56,18 +56,12 @@ const FeedbackForm = () => {
   const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
 
-  // Mock events data - replace with actual data from your backend
-  const events = [
-    { id: '1', name: 'Spring Festival 2024' },
-    { id: '2', name: 'Tech Workshop Series' },
-    { id: '3', name: 'Cultural Night' },
-    { id: '4', name: 'Career Fair' },
-    { id: '5', name: 'Sports Tournament' },
-    // ... You've added more events here manually ...
-  ];
+  // New state for available events
+  const [availableEvents, setAvailableEvents] = useState([]);
 
-  // Fetch dashboard data (number of submissions and average rating)
+  // Fetch dashboard data AND the list of unique events
   useEffect(() => {
+    // Fetch dashboard data (keep if needed in this component)
     getFeedbacks()
       .then((res) => {
         const feedbacks = res.data || [];
@@ -82,9 +76,20 @@ const FeedbackForm = () => {
             : 0;
         setDashboard({ count, avgRating });
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Error fetching feedbacks:", error);
         setDashboard({ count: 0, avgRating: 0 });
         setAllFeedbacks([]);
+      });
+
+    // Fetch unique events from the backend
+    getUniqueEvents()
+      .then((res) => {
+        setAvailableEvents(res.data.events || []);
+      })
+      .catch((error) => {
+        console.error("Error fetching unique events:", error);
+        setAvailableEvents([]);
       });
   }, [submitted]);
 
@@ -106,6 +111,15 @@ const FeedbackForm = () => {
       const response = await submitFeedback(feedbackWithDate);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
+      // Optionally re-fetch events after submitting
+      getUniqueEvents()
+        .then((res) => {
+          setAvailableEvents(res.data.events || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching unique events after submission:", error);
+          setAvailableEvents([]);
+        });
     } catch (error) {
       console.error("Submission failed:", error);
     }
@@ -165,40 +179,44 @@ const FeedbackForm = () => {
             required
             id="name"
           />
-          <select
-            id="event"
-            name="event"
-            value={formData.event}
-            onChange={handleChange}
-            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
-            required
-          >
-            <option value="">Choose an event...</option>
-            {events.map((event) => (
-              <option key={event.id} value={event.name}>
-                {event.name}
-              </option>
-            ))}
-          </select>
-          {/* Event Type Dropdown */}
-          <select
-            className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
-            id="eventType"
-            name="eventType"
-            value={formData.eventType}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Event Type</option>
-            {EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          {/* Rating Slider */}
+          <div>
+            <label htmlFor="event" className="block text-sm font-medium text-gray-700 mb-2">Select Event/Club</label>
+            <select
+              id="event"
+              name="event"
+              value={formData.event}
+              onChange={handleChange}
+              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
+              required
+            >
+              <option value="">Choose an event...</option>
+              {availableEvents.map((eventName, index) => (
+                <option key={index} value={eventName}>
+                  {eventName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 mb-2">Select Event Type</label>
+            <select
+              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
+              id="eventType"
+              name="eventType"
+              value={formData.eventType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Event Type</option>
+              {EVENT_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="my-4">
-            <label className="block font-semibold mb-2 text-blue-700">
+            <label htmlFor="rating" className="block font-semibold mb-2 text-blue-700">
               Rating:
               <span className="ml-2 text-xl align-middle">
                 {getEmojiForRating(formData.rating)} {formData.rating}
@@ -212,23 +230,22 @@ const FeedbackForm = () => {
               onChange={handleSliderChange}
               className="rating-slider mb-2"
               style={{ accentColor: "#2563eb" }}
+              id="rating"
             />
-            <div className="flex justify-between text-xs mt-1 px-1">
-              {/* <span>1</span>
-              <span>5</span>
-              <span>10</span> */}
-            </div>
           </div>
-          <textarea
-            className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
-            name="comment"
-            placeholder="Your Feedback"
-            onChange={handleChange}
-            value={formData.comment}
-            required
-            rows={10}
-          />
-          {/* Centered Submit Button just below feedback */}
+          <div>
+            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">Your Feedback</label>
+            <textarea
+              className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
+              name="comment"
+              placeholder="Your Feedback"
+              onChange={handleChange}
+              value={formData.comment}
+              required
+              rows={4}
+              id="comment"
+            />
+          </div>
           <div className="btn-block mt-2 flex justify-center">
             <button
               type="submit"
