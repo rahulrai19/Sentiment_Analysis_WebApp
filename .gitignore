@@ -1,2 +1,13 @@
 # Local Netlify folder
 .netlify
+
+# Node.js / React
+node_modules/
+.env
+build/
+dist/
+
+# Python / FastAPI
+venv/
+__pycache__/
+.env
