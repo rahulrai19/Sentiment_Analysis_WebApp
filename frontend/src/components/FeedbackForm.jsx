@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { submitFeedback, getFeedbacks, getUniqueEvents } from "../services/api";
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { Bars3Icon, ChatBubbleLeftIcon, ChartBarIcon } from "@heroicons/react/24/outline";
 
 const EVENT_TYPES = [
   "Workshop",
@@ -53,7 +53,7 @@ const FeedbackForm = () => {
   const [loading, setLoading] = useState(false);
 
   // Dashboard state
-  const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
+  const [dashboard, setDashboard] = useState({ count: 0, totalEvents: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
 
   // New state for available events
@@ -61,33 +61,26 @@ const FeedbackForm = () => {
 
   // Fetch dashboard data AND the list of unique events
   useEffect(() => {
-    // Fetch dashboard data (keep if needed in this component)
+    // Fetch dashboard data AND the list of unique events
     getFeedbacks()
       .then((res) => {
         const feedbacks = res.data || [];
         setAllFeedbacks(feedbacks);
         const count = feedbacks.length;
-        const ratings = feedbacks
-          .map((f) => Number(f.rating))
-          .filter((r) => !isNaN(r));
-        const avgRating =
-          ratings.length > 0
-            ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
-            : 0;
-        setDashboard({ count, avgRating });
+        setDashboard(prev => ({ ...prev, count }));
       })
       .catch((error) => {
         console.error("Error fetching feedbacks:", error);
-        setDashboard({ count: 0, avgRating: 0 });
+        setDashboard({ count: 0, totalEvents: 0 });
         setAllFeedbacks([]);
       });
 
     // Fetch unique events from the backend
     getUniqueEvents()
       .then((res) => {
-        // Safely check if res exists and res.events is an array
         if (res && Array.isArray(res.events)) {
           setAvailableEvents(res.events);
+          setDashboard(prev => ({ ...prev, totalEvents: res.events.length }));
           console.log("Fetched available events:", res.events);
         } else {
           console.error("Error fetching unique events: Unexpected response format", res);
@@ -169,13 +162,23 @@ const FeedbackForm = () => {
       <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
       {/* Dashboard Section */}
       <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
-        <div>
-          <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
-          <span className="dashboard-value">{dashboard.count}</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-blue-100 p-3 rounded-lg">
+            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
+            <span className="dashboard-value">{dashboard.count}</span>
+          </div>
         </div>
-        <div>
-          <span className="dashboard-label font-semibold">Average Rating:</span>{" "}
-          <span className="dashboard-value">{dashboard.avgRating}</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-blue-100 p-3 rounded-lg">
+            <ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <span className="dashboard-label font-semibold">Live Events:</span>{" "}
+            <span className="dashboard-value">{dashboard.totalEvents}</span>
+          </div>
         </div>
       </div>
       <div className="feedback-form-main">
