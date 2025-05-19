@@ -232,8 +232,9 @@ const FeedbackForm = () => {
           ) : (
             allFeedbacks.map((f, i) => (
               <div
-                key={i}
-                className="feedback-card flex flex-col md:flex-row md:items-center gap-4 bg-white border border-blue-100 rounded-2xl shadow p-5 hover:shadow-lg transition"
+                key={item._id || i}
+                className="feedback-card flex flex-col md:flex-row md:items-center gap-4 bg-white border border-blue-100 rounded-2xl shadow p-5 hover:shadow-lg transition animate-fade-in-up"
+                style={{ animationDelay: `${i * 0.05}s` }}
               >
                 <div className="flex-1">
                   <div className="font-bold text-blue-700">{f.name}</div>
