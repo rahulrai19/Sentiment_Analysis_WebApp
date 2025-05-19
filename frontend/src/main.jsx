@@ -7,6 +7,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import HeroSection from "./components/HeroSection";
 import About from "./components/About";
 import Login from "./components/Login";
+import Footer from "./components/Footer";
 import './index.css'
 import { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -81,20 +82,23 @@ function NavBar() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <Router>
-    <Toaster position="top-center" />
-    <NavBar />
-    <Routes>
-      <Route path="/" element={
-        <>
-          <HeroSection />
-          <FeedbackForm />
-        </>
-      } />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/submit" element={<FeedbackForm />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/login" element={<Login />} />
-    </Routes>
-  </Router>
+  <>
+    <Router>
+      <Toaster position="top-center" />
+      <NavBar />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <HeroSection />
+            <FeedbackForm />
+          </>
+        } />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/submit" element={<FeedbackForm />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
+    <Footer />
+  </>
 )
