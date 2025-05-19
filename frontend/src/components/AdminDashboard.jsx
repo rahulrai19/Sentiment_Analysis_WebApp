@@ -34,11 +34,11 @@ const fetchFeedbacks = async () => {
   return res.data;
 };
 
-const fetchSummary = async (eventType = null) => {
+const fetchSummary = async (eventName = null) => {
   let url = `${API_BASE}/api/feedback-summary`;
-  if (eventType) {
-    // Add eventType as a query parameter
-    url += `?eventType=${encodeURIComponent(eventType)}`;
+  if (eventName) {
+    // Add eventName as a query parameter
+    url += `?event=${encodeURIComponent(eventName)}`;
   }
   const res = await axios.get(url);
   return res.data;
@@ -47,7 +47,7 @@ const fetchSummary = async (eventType = null) => {
 function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
-  const [selectedEventType, setSelectedEventType] = useState('');
+  const [selectedEventName, setSelectedEventName] = useState('');
   const [newEventName, setNewEventName] = useState('');
   const [addEventLoading, setAddEventLoading] = useState(false);
   const [addEventSuccess, setAddEventSuccess] = useState(false);
@@ -86,8 +86,8 @@ function AdminDashboard() {
   }, [feedbacks]);
 
   useEffect(() => {
-    // Call fetchSummary with the selected event type
-    fetchSummary(selectedEventType)
+    // Call fetchSummary with the selected event name
+    fetchSummary(selectedEventName)
       .then(data => {
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         setFeedbacks(data.recent_feedback || []);
@@ -98,7 +98,7 @@ function AdminDashboard() {
         setSentimentCounts({ positive: 0, neutral: 0, negative: 0 });
         setFeedbacks([]);
       });
-  }, [selectedEventType]); // <-- Re-fetch when selectedEventType changes
+  }, [selectedEventName]);
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -210,13 +210,13 @@ function AdminDashboard() {
 
   const exportToCSV = (eventName = null) => {
     try {
-      // Filter feedbacks if event name is provided
+      // Filter feedbacks by event name
       const filteredFeedbacks = eventName 
         ? feedbacks.filter(f => f.event === eventName)
         : feedbacks;
 
       if (filteredFeedbacks.length === 0) {
-        toast.error('No feedback data to export');
+        toast.error('No feedback data to export for this event');
         return;
       }
 
@@ -259,7 +259,7 @@ function AdminDashboard() {
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`Successfully exported ${filteredFeedbacks.length} feedback entries`);
+      toast.success(`Successfully exported ${filteredFeedbacks.length} feedback entries for ${eventName || 'all events'}`);
     } catch (error) {
       console.error('Error exporting to CSV:', error);
       toast.error('Failed to export feedback data');
@@ -270,19 +270,19 @@ function AdminDashboard() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
 
-      {/* Event Type Filter and Export Section */}
+      {/* Event Name Filter and Export Section */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="w-full sm:w-1/3">
-          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <label htmlFor="eventFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Name:</label>
           <select
-            id="eventTypeFilter"
-            value={selectedEventType}
-            onChange={(e) => setSelectedEventType(e.target.value)}
+            id="eventFilter"
+            value={selectedEventName}
+            onChange={(e) => setSelectedEventName(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">All Event Types</option>
-            {EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
+            <option value="">All Events</option>
+            {availableEvents.map((event) => (
+              <option key={event} value={event}>{event}</option>
             ))}
           </select>
         </div>
@@ -294,13 +294,13 @@ function AdminDashboard() {
             <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
             Export All
           </button>
-          {selectedEventType && (
+          {selectedEventName && (
             <button
-              onClick={() => exportToCSV(selectedEventType)}
+              onClick={() => exportToCSV(selectedEventName)}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export {selectedEventType}
+              Export {selectedEventName}
             </button>
           )}
         </div>
@@ -348,7 +348,7 @@ function AdminDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <SummaryCard icon={<ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />} label="Total Feedback" value={feedbacks.length} bg="blue-50" /> {/* Note: Total count is only for the filtered list here */}
+        <SummaryCard icon={<ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />} label="Total Feedback" value={feedbacks.length} bg="blue-50" />
         <SummaryCard icon={<FaceSmileIcon className="h-6 w-6 text-green-600" />} label="Positive" value={sentimentCounts.positive} bg="green-50" />
         <SummaryCard icon={<MinusCircleIcon className="h-6 w-6 text-yellow-600" />} label="Neutral" value={sentimentCounts.neutral} bg="yellow-50" />
         <SummaryCard icon={<FaceFrownIcon className="h-6 w-6 text-red-600" />} label="Negative" value={sentimentCounts.negative} bg="red-50" />
@@ -356,11 +356,10 @@ function AdminDashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Charts now automatically reflect filtered data via sentimentCounts */}
-        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventType ? `for ${selectedEventType}` : 'All Types'}`}>
+        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventName ? `for ${selectedEventName}` : 'All Events'}`}>
           <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
         </ChartCard>
-        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventType ? `for ${selectedEventType}` : 'All Types'}`}>
+        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventName ? `for ${selectedEventName}` : 'All Events'}`}>
           <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
         </ChartCard>
       </div>
@@ -430,22 +429,19 @@ function AdminDashboard() {
       {/* Feedback Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          {/* Table shows recent feedback for the filtered type */}
-          <h3 className="text-lg font-semibold text-gray-900">{selectedEventType ? `Recent ${selectedEventType} Feedback` : 'Recent Feedback'}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{selectedEventName ? `Recent Feedback for ${selectedEventName}` : 'Recent Feedback'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {/* Ensure your headers match your feedback object keys */}
                 {['Name', 'Event', 'Type', 'Comment', 'Rating', 'Sentiment', 'Date'].map(header => (
                   <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {/* Display feedbacks filtered by the backend */}
-              {feedbacks.slice().reverse().map((item, idx) => ( // Ensure item keys match your data structure
+              {feedbacks.slice().reverse().map((item, idx) => (
                 <tr key={item._id || idx} className="hover:bg-blue-50 transition cursor-pointer">
                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{item.name || '-'}</td>
                   <td className="px-6 py-4 text-sm text-gray-700">{item.event || '-'}</td>
@@ -457,7 +453,7 @@ function AdminDashboard() {
                       {item.sentiment ? item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1) : '-'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td> {/* Assuming 'createdAt' field */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
                 </tr>
               ))}
                {feedbacks.length === 0 && (
