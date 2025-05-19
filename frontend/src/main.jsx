@@ -10,7 +10,6 @@ import './index.css'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Helmet } from 'react-helmet-async';
 
 // Lazy load components
 const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
@@ -104,10 +103,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthProvider>
       <Toaster position="top-center" />
-      <Helmet>
-        <title>Sentiment Feeder - Share Your Feedback</title>
-        <meta name="description" content="Submit and view feedback for events and clubs." />
-      </Helmet>
       <NavBar />
       <Routes>
         <Route path="/" element={
