@@ -29,7 +29,7 @@ function HeroSection() {
           to="/submit"
           className="inline-block bg-white hover:bg-blue-50 text-blue-700 font-semibold px-8 py-3 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
         >
-          Give Feedback !
+          Give Feedback
         </Link>
       </div>
     </div>
