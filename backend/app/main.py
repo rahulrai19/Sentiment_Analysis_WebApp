@@ -73,18 +73,18 @@ async def get_all_feedbacks():
 
 # API endpoint to fetch feedback summary with optional event type filter (using database)
 @app.get("/api/feedback-summary")
-async def feedback_summary(eventType: str | None = None):
+async def feedback_summary(event_name: str | None = None):
     """
-    Get feedback sentiment summary and recent feedbacks, optionally filtered by event type.
+    Get feedback sentiment summary and recent feedbacks, optionally filtered by event name.
     """
     try:
         # Build the query filter
         filter_query = {}
-        if eventType:
-            filter_query["eventType"] = eventType
+        if event_name:
+            filter_query["event"] = event_name
 
         # Use await with the async find method and to_list
-        feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None) # Added await and to_list
+        feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None)
 
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
         for feedback in feedbacks:
