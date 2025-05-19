@@ -19,7 +19,7 @@ function HeroSection() {
       
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-6 drop-shadow-lg text-stroke-white">
+        <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-6 drop-shadow-lg text-stroke-white animate-fade-in-up">
           Share Your Voice on Campus Events
         </h1>
         <p className="text-xl text-yellow-400 mb-8 drop-shadow-md">
