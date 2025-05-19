@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 import { 
@@ -12,38 +13,30 @@ import {
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 function AdminDashboard() {
-  const [feedbackData, setFeedbackData] = useState({
-    total: 0,
-    positive: 0,
-    neutral: 0,
-    negative: 0,
-    recentFeedback: []
-  });
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
-  // Mock data - replace with actual API call
   useEffect(() => {
-    // Simulated API call
-    const mockData = {
-      total: 156,
-      positive: 89,
-      neutral: 42,
-      negative: 25,
-      recentFeedback: [
-        { id: 1, event: 'Spring Festival 2024', feedback: 'Great event! The food was amazing.', sentiment: 'positive', date: '2024-03-15' },
-        { id: 2, event: 'Tech Workshop', feedback: 'Could have been more interactive.', sentiment: 'neutral', date: '2024-03-14' },
-        { id: 3, event: 'Cultural Night', feedback: 'The performances were outstanding!', sentiment: 'positive', date: '2024-03-13' },
-        { id: 4, event: 'Career Fair', feedback: 'Not enough companies from my field.', sentiment: 'negative', date: '2024-03-12' },
-        { id: 5, event: 'Sports Tournament', feedback: 'Well organized and fun!', sentiment: 'positive', date: '2024-03-11' },
-      ]
-    };
-    setFeedbackData(mockData);
-  }, []);
+    axios.get(`${API_BASE}/feedbacks`).then(res => {
+      const data = res.data || [];
+      setFeedbacks(data);
+      // Calculate sentiment counts
+      const counts = { positive: 0, neutral: 0, negative: 0 };
+      data.forEach(fb => {
+        if (fb.sentiment === 'positive') counts.positive++;
+        else if (fb.sentiment === 'neutral') counts.neutral++;
+        else if (fb.sentiment === 'negative') counts.negative++;
+      });
+      setSentimentCounts(counts);
+    });
+  }, [API_BASE]);
 
   // Chart data for pie chart
   const pieChartData = {
     labels: ['Positive', 'Neutral', 'Negative'],
     datasets: [{
-      data: [feedbackData.positive, feedbackData.neutral, feedbackData.negative],
+      data: [sentimentCounts.positive, sentimentCounts.neutral, sentimentCounts.negative],
       backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
       borderColor: ['#16a34a', '#ca8a04', '#dc2626'],
       borderWidth: 1,
@@ -55,7 +48,7 @@ function AdminDashboard() {
     labels: ['Positive', 'Neutral', 'Negative'],
     datasets: [{
       label: 'Feedback Distribution',
-      data: [feedbackData.positive, feedbackData.neutral, feedbackData.negative],
+      data: [sentimentCounts.positive, sentimentCounts.neutral, sentimentCounts.negative],
       backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
       borderColor: ['#16a34a', '#ca8a04', '#dc2626'],
       borderWidth: 1,
@@ -92,50 +85,47 @@ function AdminDashboard() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-50 rounded-lg">
               <ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Feedback</p>
-              <p className="text-2xl font-bold text-gray-900">{feedbackData.total}</p>
+              <p className="text-2xl font-bold text-gray-900">{feedbacks.length}</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-green-50 rounded-lg">
               <FaceSmileIcon className="h-6 w-6 text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Positive</p>
-              <p className="text-2xl font-bold text-gray-900">{feedbackData.positive}</p>
+              <p className="text-2xl font-bold text-gray-900">{sentimentCounts.positive}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-yellow-50 rounded-lg">
               <MinusCircleIcon className="h-6 w-6 text-yellow-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Neutral</p>
-              <p className="text-2xl font-bold text-gray-900">{feedbackData.neutral}</p>
+              <p className="text-2xl font-bold text-gray-900">{sentimentCounts.neutral}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-red-50 rounded-lg">
               <FaceFrownIcon className="h-6 w-6 text-red-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Negative</p>
-              <p className="text-2xl font-bold text-gray-900">{feedbackData.negative}</p>
+              <p className="text-2xl font-bold text-gray-900">{sentimentCounts.negative}</p>
             </div>
           </div>
         </div>
@@ -149,7 +139,6 @@ function AdminDashboard() {
             <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
           </div>
         </div>
-
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Sentiment Distribution (Bar)</h3>
           <div className="h-64">
@@ -167,29 +156,29 @@ function AdminDashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sentiment</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {feedbackData.recentFeedback.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {item.event}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {item.feedback}
-                  </td>
+              {feedbacks.slice().reverse().map((item, idx) => (
+                <tr key={item._id || idx} className="hover:bg-blue-50 transition cursor-pointer">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{item.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{item.event}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.eventType}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{item.comment}</td>
+                  <td className="px-6 py-4 text-sm text-blue-700 font-bold">{item.rating}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSentimentColor(item.sentiment)}`}>
-                      {item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1)}
+                      {item.sentiment ? item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1) : '-'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(item.date).toLocaleDateString()}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
                 </tr>
               ))}
             </tbody>
