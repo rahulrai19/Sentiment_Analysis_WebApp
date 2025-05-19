@@ -120,5 +120,14 @@ async def test_retrieve():
     data = list(collection.find({}, {"_id": 0}))  # Remove MongoDB ObjectID
     return {"feedback": data}
 
+@app.get("/api/db-status")
+async def db_status():
+    try:
+        # The 'ping' command is cheap and doesn't require auth
+        client.admin.command('ping')
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
 # Include existing routes
 app.include_router(router, prefix="/api")
