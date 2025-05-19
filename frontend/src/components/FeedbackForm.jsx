@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { submitFeedback, getFeedbacks } from "../services/api";
 
 const EVENT_TYPES = [
   "Workshop",
@@ -24,7 +24,7 @@ function getEmojiForRating(rating) {
   return found ? found.emoji : "😐";
 }
 
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
@@ -44,8 +44,7 @@ const FeedbackForm = () => {
 
   // Fetch dashboard data (number of submissions and average rating)
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/feedbacks`)
+    getFeedbacks()
       .then((res) => {
         const feedbacks = res.data || [];
         setAllFeedbacks(feedbacks);
@@ -63,7 +62,7 @@ const FeedbackForm = () => {
         setDashboard({ count: 0, avgRating: 0 });
         setAllFeedbacks([]);
       });
-  }, [submitted, API_BASE]);
+  }, [submitted]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -76,15 +75,7 @@ const FeedbackForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${API_BASE}/api/submit-feedback`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await submitFeedback(formData);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
     } catch (error) {

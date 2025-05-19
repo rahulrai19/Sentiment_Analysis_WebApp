@@ -9,13 +9,12 @@ import About from "./components/About";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
 import './index.css'
-import { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 // Simple navigation bar component
 function NavBar() {
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   return (
     <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-8 shadow-lg">
       <div className="max-w-4xl mx-auto flex justify-between items-center px-4">
@@ -96,7 +95,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/submit" element={<FeedbackForm />} />
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
-      
+      <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
     </Routes>
     <Footer />
   </BrowserRouter>

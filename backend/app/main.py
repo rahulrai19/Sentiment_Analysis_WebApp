@@ -93,6 +93,10 @@ async def feedback_summary():
 # Submit feedback to database endpoint
 @app.post("/api/submit-feedback")
 async def submit_feedback(feedback: FeedbackIn):
+    if not isinstance(feedback.comment, str):
+        raise HTTPException(status_code=400, detail="Comment must be a string")
+    if len(feedback.comment.strip()) < 3:
+        raise HTTPException(status_code=400, detail="Comment is too short")
     sentiment = analyze_sentiment(feedback.comment)
     feedback_dict = feedback.model_dump()  # For Pydantic v2+
     feedback_dict["sentiment"] = sentiment

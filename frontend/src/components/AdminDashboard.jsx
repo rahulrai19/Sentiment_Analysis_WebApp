@@ -12,7 +12,7 @@ import axios from 'axios';
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const submitFeedback = async (formData) => {
   await axios.post(`${API_BASE}/api/submit-feedback`, formData);

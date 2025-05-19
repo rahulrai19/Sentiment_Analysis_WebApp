@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import { submitFeedback } from "../services/api";
 
 function FeedbackSubmission() {
   const [selectedEvent, setSelectedEvent] = useState('');
@@ -15,8 +15,6 @@ function FeedbackSubmission() {
     { id: '4', name: 'Career Fair' },
     { id: '5', name: 'Sports Tournament' },
   ];
-
-  const API_BASE = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,21 +39,12 @@ function FeedbackSubmission() {
         comment: feedback,
         rating: 5
       };
-
-      await axios.post(`${API_BASE}/api/submit-feedback`, formData)
-        .then(response => {
-          // handle response, e.g., show a success message
-          console.log(response.data);
-          toast.success('Thank you for your feedback!');
-          setSelectedEvent('');
-          setFeedback('');
-        })
-        .catch(error => {
-          // handle error
-          console.error(error);
-          toast.error('Failed to submit feedback. Please try again.');
-        });
+      const response = await submitFeedback(formData);
+      toast.success('Thank you for your feedback!');
+      setSelectedEvent('');
+      setFeedback('');
     } catch (error) {
+      console.error(error);
       toast.error('Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
