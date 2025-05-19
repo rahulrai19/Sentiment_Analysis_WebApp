@@ -22,21 +22,28 @@ function AdminDashboard() {
 
   // Mock data - replace with actual API call
   useEffect(() => {
-    // Simulated API call
-    const mockData = {
-      total: 156,
-      positive: 89,
-      neutral: 42,
-      negative: 25,
-      recentFeedback: [
-        { id: 1, event: 'Spring Festival 2024', feedback: 'Great event! The food was amazing.', sentiment: 'positive', date: '2024-03-15' },
-        { id: 2, event: 'Tech Workshop', feedback: 'Could have been more interactive.', sentiment: 'neutral', date: '2024-03-14' },
-        { id: 3, event: 'Cultural Night', feedback: 'The performances were outstanding!', sentiment: 'positive', date: '2024-03-13' },
-        { id: 4, event: 'Career Fair', feedback: 'Not enough companies from my field.', sentiment: 'negative', date: '2024-03-12' },
-        { id: 5, event: 'Sports Tournament', feedback: 'Well organized and fun!', sentiment: 'positive', date: '2024-03-11' },
-      ]
-    };
-    setFeedbackData(mockData);
+    fetch('https://sentiment-s0y3.onrender.com/api/feedback-summary')
+      .then(response => response.json())
+      .then(data => {
+        // The backend returns: { sentiments: {positive, neutral, negative}, recent_feedback: [...] }
+        setFeedbackData({
+          total: data.recent_feedback.length,
+          positive: data.sentiments.positive,
+          neutral: data.sentiments.neutral,
+          negative: data.sentiments.negative,
+          recentFeedback: data.recent_feedback.map((item, idx) => ({
+            id: idx + 1,
+            event: item.event,
+            feedback: item.comment || item.feedback, // fallback for different field names
+            sentiment: item.sentiment ? item.sentiment.toLowerCase() : 'neutral',
+            date: item.date || new Date().toISOString(), // fallback if no date
+          }))
+        });
+      })
+      .catch(error => {
+        // handle error, maybe setFeedbackData to empty/default
+        console.error(error);
+      });
   }, []);
 
   // Chart data for pie chart

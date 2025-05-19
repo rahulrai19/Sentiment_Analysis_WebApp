@@ -31,12 +31,32 @@ function FeedbackSubmission() {
     setIsSubmitting(true);
     
     try {
-      // TODO: Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      
-      toast.success('Thank you for your feedback!');
-      setSelectedEvent('');
-      setFeedback('');
+      await fetch('https://sentiment-s0y3.onrender.com/api/submit-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: 'John Doe',
+          event: selectedEvent,
+          eventType: 'Type',
+          comment: feedback,
+          rating: 5
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // handle response, e.g., show a success message
+          console.log(data);
+          toast.success('Thank you for your feedback!');
+          setSelectedEvent('');
+          setFeedback('');
+        })
+        .catch(error => {
+          // handle error
+          console.error(error);
+          toast.error('Failed to submit feedback. Please try again.');
+        });
     } catch (error) {
       toast.error('Failed to submit feedback. Please try again.');
     } finally {
