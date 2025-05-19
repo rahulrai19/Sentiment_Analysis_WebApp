@@ -16,4 +16,14 @@ export const checkBackendStatus = async () => {
         console.error('Error checking backend status:', error);
         throw error;
     }
+};
+
+export const getUniqueEvents = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/api/events`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching unique events:', error);
+    throw error;
+  }
 }; 
