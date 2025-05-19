@@ -108,7 +108,7 @@ async def test_insert():
     test_feedback = {
         "name": "John",
         "event": "Annual Meeting",
-        "eventType": "Conference",
+        "eventType": "Workshop",
         "comment": "Great event!",
         "rating": 5
     }
