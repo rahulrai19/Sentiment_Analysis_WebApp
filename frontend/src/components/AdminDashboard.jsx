@@ -113,7 +113,7 @@ function AdminDashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Name', 'Event', 'Type', 'Feedback', 'Rating', 'Sentiment', 'Date'].map(header => (
+                {['Name', 'Event', 'Type', 'Feedback', 'Rating', 'Sentiment', 'Submission Date'].map(header => (
                   <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
                 ))}
               </tr>
@@ -131,7 +131,15 @@ function AdminDashboard() {
                       {item.sentiment ? item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1) : '-'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item.submissionDate ? new Date(item.submissionDate).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) : '-'}
+                  </td>
                 </tr>
               ))}
             </tbody>
