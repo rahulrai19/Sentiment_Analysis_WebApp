@@ -1,8 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
 import AdminDashboard from "./components/AdminDashboard";
+import HeroSection from "./components/HeroSection";
+import FeedbackSubmission from "./components/FeedbackSubmission";
 import './index.css'
 
 // Simple navigation bar component
@@ -43,10 +46,17 @@ function NavBar() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Router>
+    <Toaster position="top-center" />
     <NavBar />
     <Routes>
-      <Route path="/" element={<FeedbackForm />} />
+      <Route path="/" element={
+        <>
+          <HeroSection />
+          <FeedbackForm />
+        </>
+      } />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/submit" element={<FeedbackSubmission />} />
     </Routes>
   </Router>
 )
