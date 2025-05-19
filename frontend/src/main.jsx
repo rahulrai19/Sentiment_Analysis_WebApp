@@ -28,7 +28,7 @@ function NavBar() {
   return (
     <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-8 shadow-lg">
       <div className="max-w-4xl mx-auto flex justify-between items-center px-4">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center">
           <span className="text-white text-3xl font-extrabold tracking-tight drop-shadow-lg flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="inline-block mr-2" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" fill="#2563eb"/>
@@ -38,12 +38,6 @@ function NavBar() {
             </svg>
             Sentiment <span className="text-yellow-300 ml-1">Feeder</span>
           </span>
-          <Link
-            to="/about"
-            className={`hidden sm:inline text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/about" ? "bg-blue-900/80" : ""}`}
-          >
-            About
-          </Link>
         </div>
         {/* Hamburger menu for mobile */}
         <button className="sm:hidden ml-2 text-white" onClick={() => setMenuOpen(!menuOpen)}>
@@ -90,10 +84,9 @@ function NavBar() {
               Login
             </Link>
           )}
-          {/* About link for mobile */}
           <Link
             to="/about"
-            className={`sm:hidden text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/about" ? "bg-blue-900/80" : ""}`}
+            className={`text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/about" ? "bg-blue-900/80" : ""}`}
             onClick={() => setMenuOpen(false)}
           >
             About
