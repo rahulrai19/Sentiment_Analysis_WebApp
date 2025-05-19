@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { submitFeedback } from "../services/api";
 
 function FeedbackSubmission() {
   const [selectedEvent, setSelectedEvent] = useState('');
@@ -31,33 +32,19 @@ function FeedbackSubmission() {
     setIsSubmitting(true);
     
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/submit-feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: 'John Doe',
-          event: selectedEvent,
-          eventType: 'Type',
-          comment: feedback,
-          rating: 5
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          // handle response, e.g., show a success message
-          console.log(data);
-          toast.success('Thank you for your feedback!');
-          setSelectedEvent('');
-          setFeedback('');
-        })
-        .catch(error => {
-          // handle error
-          console.error(error);
-          toast.error('Failed to submit feedback. Please try again.');
-        });
+      const formData = {
+        name: 'John Doe',
+        event: selectedEvent,
+        eventType: 'Type',
+        comment: feedback,
+        rating: 5
+      };
+      const response = await submitFeedback(formData);
+      toast.success('Thank you for your feedback!');
+      setSelectedEvent('');
+      setFeedback('');
     } catch (error) {
+      console.error(error);
       toast.error('Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);

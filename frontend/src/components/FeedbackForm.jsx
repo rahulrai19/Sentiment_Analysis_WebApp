@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { submitFeedback, getFeedbacks } from "../services/api";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 
 const EVENT_TYPES = [
   "Workshop",
@@ -24,6 +25,8 @@ function getEmojiForRating(rating) {
   return found ? found.emoji : "😐";
 }
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -40,12 +43,9 @@ const FeedbackForm = () => {
   const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
 
-  const API_BASE = process.env.REACT_APP_API_BASE;
-
   // Fetch dashboard data (number of submissions and average rating)
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/feedbacks`)
+    getFeedbacks()
       .then((res) => {
         const feedbacks = res.data || [];
         setAllFeedbacks(feedbacks);
@@ -63,7 +63,7 @@ const FeedbackForm = () => {
         setDashboard({ count: 0, avgRating: 0 });
         setAllFeedbacks([]);
       });
-  }, [submitted, API_BASE]);
+  }, [submitted]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -76,15 +76,7 @@ const FeedbackForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${API_BASE}/api/submit-feedback`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await submitFeedback(formData);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
     } catch (error) {
@@ -144,6 +136,7 @@ const FeedbackForm = () => {
             onChange={handleChange}
             value={formData.name}
             required
+            id="name"
           />
           <input
             className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
@@ -154,8 +147,10 @@ const FeedbackForm = () => {
             required
           />
           {/* Event Type Dropdown */}
+          <label htmlFor="event">Select Event</label>
           <select
             className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 mb-4 transition"
+            id="event"
             name="eventType"
             value={formData.eventType}
             onChange={handleChange}

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Link, useLocation } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
 import AdminDashboard from "./components/AdminDashboard";
@@ -9,7 +9,6 @@ import About from "./components/About";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
 import './index.css'
-import { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { AuthProvider } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,7 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Simple navigation bar component
 function NavBar() {
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   return (
     <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-8 shadow-lg">
       <div className="max-w-4xl mx-auto flex justify-between items-center px-4">
@@ -84,7 +83,7 @@ function NavBar() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <Router>
+  <BrowserRouter>
     <Toaster position="top-center" />
     <NavBar />
     <Routes>
@@ -108,7 +107,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       } />
       <Route path="/submit" element={<FeedbackForm />} />
       <Route path="/about" element={<About />} />
+      <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
     </Routes>
     <Footer />
-  </Router>
+  </BrowserRouter>
 )

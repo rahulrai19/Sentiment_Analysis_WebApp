@@ -93,22 +93,22 @@ async def feedback_summary():
 # Submit feedback to database endpoint
 @app.post("/api/submit-feedback")
 async def submit_feedback(feedback: FeedbackIn):
-    try:
-        # Analyze sentiment on the comment
-        sentiment = analyze_sentiment(feedback.comment)
-        feedback_dict = feedback.dict()
-        feedback_dict["sentiment"] = sentiment
-        collection.insert_one(feedback_dict)
-        return {"status": "Feedback saved!", "sentiment": sentiment}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    if not isinstance(feedback.comment, str):
+        raise HTTPException(status_code=400, detail="Comment must be a string")
+    if len(feedback.comment.strip()) < 3:
+        raise HTTPException(status_code=400, detail="Comment is too short")
+    sentiment = analyze_sentiment(feedback.comment)
+    feedback_dict = feedback.model_dump()  # For Pydantic v2+
+    feedback_dict["sentiment"] = sentiment
+    collection.insert_one(feedback_dict)
+    return {"status": "Feedback saved!", "sentiment": sentiment}
 
 @app.post("/api/test-insert")
 async def test_insert():
     test_feedback = {
         "name": "John",
         "event": "Annual Meeting",
-        "eventType": "Conference",
+        "eventType": "Workshop",
         "comment": "Great event!",
         "rating": 5
     }
@@ -119,6 +119,15 @@ async def test_insert():
 async def test_retrieve():
     data = list(collection.find({}, {"_id": 0}))  # Remove MongoDB ObjectID
     return {"feedback": data}
+
+@app.get("/api/db-status")
+async def db_status():
+    try:
+        # The 'ping' command is cheap and doesn't require auth
+        client.admin.command('ping')
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 # Include existing routes
 app.include_router(router, prefix="/api")

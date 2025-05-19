@@ -7,17 +7,33 @@ import {
   MinusCircleIcon, 
   FaceFrownIcon 
 } from '@heroicons/react/24/outline';
+import axios from 'axios';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+
+const API_BASE = import.meta.env.VITE_API_URL;
+
+const submitFeedback = async (formData) => {
+  await axios.post(`${API_BASE}/api/submit-feedback`, formData);
+};
+
+const fetchFeedbacks = async () => {
+  const res = await axios.get(`${API_BASE}/feedbacks`);
+  return res.data;
+};
+
+const fetchSummary = async () => {
+  const res = await axios.get(`${API_BASE}/api/feedback-summary`);
+  return res.data;
+};
 
 function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/feedback-summary`)
-      .then(response => response.json())
+    fetchSummary()
       .then(data => {
         // Update counts and feedback list
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
