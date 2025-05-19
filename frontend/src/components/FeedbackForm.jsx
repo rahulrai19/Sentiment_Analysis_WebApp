@@ -201,6 +201,7 @@ const FeedbackForm = () => {
               onChange={handleChange}
               className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
               required
+              style={{ width: "30%" }}
             >
               <option value="">Choose an event...</option>
               {availableEvents.map((eventName, index) => (
@@ -219,6 +220,7 @@ const FeedbackForm = () => {
               value={formData.eventType}
               onChange={handleChange}
               required
+              style={{ width: "30%" }}
             >
               <option value="">Select Event Type</option>
               {EVENT_TYPES.map((type) => (
@@ -241,8 +243,12 @@ const FeedbackForm = () => {
               max="10"
               value={formData.rating}
               onChange={handleSliderChange}
-              className="rating-slider mb-2"
-              style={{ accentColor: "#2563eb" }}
+              className="rating-slider mb-2 w-full max-w-2xl mx-auto"
+              style={{ 
+                accentColor: "#2563eb",
+                width: "50%",
+                height: "8px"
+              }}
               id="rating"
             />
           </div>
@@ -255,7 +261,8 @@ const FeedbackForm = () => {
               onChange={handleChange}
               value={formData.comment}
               required
-              rows={4}
+              rows={8}
+              cols={50}
               id="comment"
             />
           </div>
