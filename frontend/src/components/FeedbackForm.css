@@ -5,6 +5,8 @@
   background: #ffffff;
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+  width: 80%;
 }
 
 .dashboard-section {
@@ -40,6 +42,7 @@
   text-align: center;
   background: #f8fafc;
   margin-bottom: 1.25rem;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -50,6 +53,7 @@
   outline: none;
   transform: scale(1.03);
   transition: transform 0.15s;
+  width: 50%;
 }
 
 .form-textarea {
