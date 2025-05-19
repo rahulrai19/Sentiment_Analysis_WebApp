@@ -7,6 +7,7 @@ import {
   MinusCircleIcon, 
   FaceFrownIcon 
 } from '@heroicons/react/24/outline';
+import axios from 'axios';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -22,7 +23,7 @@ function AdminDashboard() {
 
   // Mock data - replace with actual API call
   useEffect(() => {
-    fetch('https://sentiment-s0y3.onrender.com/api/feedback-summary')
+    fetch(`${process.env.REACT_APP_API_URL}/api/feedback-summary`)
       .then(response => response.json())
       .then(data => {
         // The backend returns: { sentiments: {positive, neutral, negative}, recent_feedback: [...] }
