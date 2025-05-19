@@ -22,6 +22,7 @@ function Login() {
   return (
     <div className="max-w-md mx-auto py-16 px-4 text-center">
       <h1 className="text-3xl font-bold text-blue-700 mb-6">Admin Login</h1>
+      <p className="text-gray-600 mb-6">Use username: <strong className="text-green-600">admin</strong> and password: <strong className="text-green-600">admin123</strong> for admin access.</p>
       <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl p-8 space-y-6">
         <input
           type="text"
