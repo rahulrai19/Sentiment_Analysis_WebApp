@@ -268,9 +268,46 @@ function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
+
+      {/* Event Type Filter and Export Section */}
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="w-full sm:w-1/3">
+          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <select
+            id="eventTypeFilter"
+            value={selectedEventType}
+            onChange={(e) => setSelectedEventType(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Event Types</option>
+            {EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportToCSV()}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+            Export All
+          </button>
+          {selectedEventType && (
+            <button
+              onClick={() => exportToCSV(selectedEventType)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+              Export {selectedEventType}
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Dashboard Overview Section */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Total Submissions Card */}
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-[1.02] transition-all duration-200">
@@ -306,42 +343,6 @@ function AdminDashboard() {
               <p className="text-yellow-100 text-sm">Overall event satisfaction</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Event Type Filter and Export Section */}
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="w-full sm:w-1/3">
-          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
-          <select
-            id="eventTypeFilter"
-            value={selectedEventType}
-            onChange={(e) => setSelectedEventType(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">All Event Types</option>
-            {EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => exportToCSV()}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-            Export All
-          </button>
-          {selectedEventType && (
-            <button
-              onClick={() => exportToCSV(selectedEventType)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export {selectedEventType}
-            </button>
-          )}
         </div>
       </div>
 
