@@ -24,6 +24,8 @@ function getEmojiForRating(rating) {
   return found ? found.emoji : "😐";
 }
 
+const API_BASE = process.env.REACT_APP_API_URL;
+
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -39,8 +41,6 @@ const FeedbackForm = () => {
   // Dashboard state
   const [dashboard, setDashboard] = useState({ count: 0, avgRating: 0 });
   const [allFeedbacks, setAllFeedbacks] = useState([]);
-
-  const API_BASE = process.env.REACT_APP_API_URL;
 
   // Fetch dashboard data (number of submissions and average rating)
   useEffect(() => {

@@ -93,15 +93,11 @@ async def feedback_summary():
 # Submit feedback to database endpoint
 @app.post("/api/submit-feedback")
 async def submit_feedback(feedback: FeedbackIn):
-    try:
-        # Analyze sentiment on the comment
-        sentiment = analyze_sentiment(feedback.comment)
-        feedback_dict = feedback.model_dump()
-        feedback_dict["sentiment"] = sentiment
-        collection.insert_one(feedback_dict)
-        return {"status": "Feedback saved!", "sentiment": sentiment}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    sentiment = analyze_sentiment(feedback.comment)
+    feedback_dict = feedback.model_dump()  # For Pydantic v2+
+    feedback_dict["sentiment"] = sentiment
+    collection.insert_one(feedback_dict)
+    return {"status": "Feedback saved!", "sentiment": sentiment}
 
 @app.post("/api/test-insert")
 async def test_insert():
