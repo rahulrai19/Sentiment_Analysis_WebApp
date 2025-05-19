@@ -5,7 +5,6 @@ import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
 import AdminDashboard from "./components/AdminDashboard";
 import HeroSection from "./components/HeroSection";
-import FeedbackSubmission from "./components/FeedbackSubmission";
 import './index.css'
 
 // Simple navigation bar component
@@ -56,7 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </>
       } />
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/submit" element={<FeedbackSubmission />} />
+      <Route path="/submit" element={<FeedbackForm />} />
     </Routes>
   </Router>
 )
