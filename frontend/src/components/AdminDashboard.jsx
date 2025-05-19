@@ -38,10 +38,10 @@ const fetchSummary = async (eventName = null, eventType = null) => {
   let url = `${API_BASE}/api/feedback-summary`;
   const params = new URLSearchParams();
   if (eventName) {
-    params.append('event', eventName);
+    params.append('event_name', eventName); // <-- use event_name
   }
   if (eventType) {
-    params.append('eventType', eventType);
+    params.append('event_type', eventType); // <-- use event_type
   }
   if (params.toString()) {
     url += `?${params.toString()}`;
