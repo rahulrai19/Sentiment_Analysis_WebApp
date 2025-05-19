@@ -26,7 +26,7 @@ function NavBar() {
   };
 
   return (
-    <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-8 shadow-lg">
+    <nav className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 py-5 mb-4 shadow-lg">
       <div className="max-w-4xl mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
           <span className="text-white text-3xl font-extrabold tracking-tight drop-shadow-lg flex items-center">
