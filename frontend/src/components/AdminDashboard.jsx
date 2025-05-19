@@ -168,13 +168,19 @@ function AdminDashboard() {
     }
 
     try {
-      await axios.delete(`${API_BASE}/api/events`, { data: { name: eventName } });
+      // Send the event name as a query parameter instead of in the body
+      await axios.delete(`${API_BASE}/api/events/${encodeURIComponent(eventName)}`);
+      
       // Update local state by removing the deleted event
       setAvailableEvents(prevEvents => prevEvents.filter(event => event !== eventName));
       toast.success('Event deleted successfully');
+      
+      // Refresh the events list to ensure sync with backend
+      const response = await axios.get(`${API_BASE}/api/events`);
+      setAvailableEvents(response.data.events || []);
     } catch (error) {
       console.error('Error deleting event:', error);
-      toast.error('Failed to delete event');
+      toast.error(error.response?.data?.message || 'Failed to delete event. Please try again.');
     }
   };
 
