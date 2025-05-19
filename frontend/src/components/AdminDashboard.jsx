@@ -4,7 +4,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 import { 
   ChatBubbleLeftIcon, 
   FaceSmileIcon, 
-  FaceNeutralIcon, 
+  FaceIcon, 
   FaceFrownIcon 
 } from '@heroicons/react/24/outline';
 
@@ -119,7 +119,7 @@ function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-yellow-50 rounded-lg">
-              <FaceNeutralIcon className="h-6 w-6 text-yellow-600" />
+              <FaceIcon className="h-6 w-6 text-yellow-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Neutral</p>
