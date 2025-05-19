@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
 import AdminDashboard from "./components/AdminDashboard";
 import HeroSection from "./components/HeroSection";
+import About from "./components/About";
+import Login from "./components/Login";
 import './index.css'
 
 // Simple navigation bar component
@@ -23,8 +25,14 @@ function NavBar() {
             </svg>
             Sentiment <span className="text-yellow-300 ml-1">Feeder</span>
           </span>
+          <Link
+            to="/about"
+            className={`ml-6 text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/about" ? "bg-blue-900/80" : ""}`}
+          >
+            About
+          </Link>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <Link
             to="/"
             className={`text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/" ? "bg-blue-900/80" : ""}`}
@@ -36,6 +44,12 @@ function NavBar() {
             className={`text-white px-4 py-2 rounded-lg hover:bg-blue-800/70 transition font-semibold ${location.pathname === "/admin" ? "bg-blue-900/80" : ""}`}
           >
             Admin Dashboard
+          </Link>
+          <Link
+            to="/login"
+            className={`ml-4 text-white px-4 py-2 rounded-lg border border-white hover:bg-yellow-400/80 hover:text-blue-900 transition font-bold ${location.pathname === "/login" ? "bg-yellow-300 text-blue-900" : ""}`}
+          >
+            Login
           </Link>
         </div>
       </div>
@@ -56,6 +70,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       } />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/submit" element={<FeedbackForm />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
   </Router>
 )
