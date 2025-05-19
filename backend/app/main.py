@@ -82,9 +82,12 @@ async def feedback_summary(event_name: str | None = None):
         filter_query = {}
         if event_name:
             filter_query["event"] = event_name
+            print(f"Filtering feedback summary by event: {event_name}") # Add logging
 
         # Use await with the async find method and to_list
         feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None)
+
+        print(f"Fetched {len(feedbacks)} feedbacks after filtering") # Add logging
 
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
         for feedback in feedbacks:
@@ -94,6 +97,7 @@ async def feedback_summary(event_name: str | None = None):
         return {"sentiments": sentiments, "recent_feedback": feedbacks}
 
     except Exception as e:
+        print(f"Error in feedback_summary: {e}") # Add logging
         raise HTTPException(status_code=500, detail=str(e))
 
 # Submit feedback to database endpoint
