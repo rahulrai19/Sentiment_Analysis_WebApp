@@ -96,7 +96,7 @@ async def submit_feedback(feedback: FeedbackIn):
     try:
         # Analyze sentiment on the comment
         sentiment = analyze_sentiment(feedback.comment)
-        feedback_dict = feedback.dict()
+        feedback_dict = feedback.model_dump()
         feedback_dict["sentiment"] = sentiment
         collection.insert_one(feedback_dict)
         return {"status": "Feedback saved!", "sentiment": sentiment}
