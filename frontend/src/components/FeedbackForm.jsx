@@ -8,6 +8,19 @@ const EVENT_TYPES = [
   "Competition",
   "Meetup",
   "Webinar",
+  "Hackathon",
+  "Coding Contest",
+  "Sports Event",
+  "Dance Event",
+  "Music Event",
+  "Art Event",
+  "Cultural Event",
+  "Social Service",
+  "Festival",
+  "Concert",
+  "Movie Night",
+  "Game Night",
+  "Party",
   "Other",
 ];
 
@@ -151,7 +164,6 @@ const FeedbackForm = () => {
             required
           />
           {/* Event Type Dropdown */}
-          <label htmlFor="event">Select Event</label>
           <select
             className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 mb-4 transition"
             id="event"
