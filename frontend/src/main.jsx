@@ -1,17 +1,19 @@
-import React from 'react'
+import React, { Suspense, lazy } from "react";
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes, Link, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import FeedbackForm from "./components/FeedbackForm";
-import AdminDashboard from "./components/AdminDashboard";
 import HeroSection from "./components/HeroSection";
-import About from "./components/About";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
 import './index.css'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+// Lazy load components
+const AdminDashboard = lazy(() => import("./components/AdminDashboard"));
+const About = lazy(() => import("./components/About"));
 
 // Simple navigation bar component
 function NavBar() {
@@ -110,13 +112,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </>
         } />
         <Route path="/admin" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
+          <Suspense fallback={<div>Loading...</div>}>
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </Suspense>
         } />
         <Route path="/login" element={<Login />} />
         <Route path="/submit" element={<FeedbackForm />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/about" element={
+          <Suspense fallback={<div>Loading...</div>}>
+            <About />
+          </Suspense>
+        } />
         <Route path="*" element={<div className="text-center mt-10 text-xl">404 - Page Not Found</div>} />
       </Routes>
       <Footer />
