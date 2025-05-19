@@ -34,11 +34,17 @@ const fetchFeedbacks = async () => {
   return res.data;
 };
 
-const fetchSummary = async (eventName = null) => {
+const fetchSummary = async (eventName = null, eventType = null) => {
   let url = `${API_BASE}/api/feedback-summary`;
+  const params = new URLSearchParams();
   if (eventName) {
-    // Add eventName as a query parameter
-    url += `?event=${encodeURIComponent(eventName)}`;
+    params.append('event', eventName);
+  }
+  if (eventType) {
+    params.append('eventType', eventType);
+  }
+  if (params.toString()) {
+    url += `?${params.toString()}`;
   }
   const res = await axios.get(url);
   return res.data;
@@ -48,6 +54,7 @@ function AdminDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [sentimentCounts, setSentimentCounts] = useState({ positive: 0, neutral: 0, negative: 0 });
   const [selectedEventName, setSelectedEventName] = useState('');
+  const [selectedEventType, setSelectedEventType] = useState('');
   const [newEventName, setNewEventName] = useState('');
   const [addEventLoading, setAddEventLoading] = useState(false);
   const [addEventSuccess, setAddEventSuccess] = useState(false);
@@ -72,8 +79,8 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Call fetchSummary with the selected event name and update all related states
-    fetchSummary(selectedEventName)
+    // Call fetchSummary with the selected event name AND event type
+    fetchSummary(selectedEventName, selectedEventType)
       .then(data => {
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         const fetchedFeedbacks = data.recent_feedback || [];
@@ -99,7 +106,7 @@ function AdminDashboard() {
           averageRating: '0.0'
         });
       });
-  }, [selectedEventName]); // Dependency is selectedEventName
+  }, [selectedEventName, selectedEventType]); // Dependencies include both filters
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -212,7 +219,7 @@ function AdminDashboard() {
   const exportToCSV = (eventName = null) => {
     try {
       // Filter feedbacks by event name
-      const filteredFeedbacks = eventName 
+      const filteredFeedbacks = eventName
         ? feedbacks.filter(f => f.event === eventName)
         : feedbacks;
 
@@ -271,8 +278,9 @@ function AdminDashboard() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
 
-      {/* Event Name Filter and Export Section */}
+      {/* Filter and Export Section */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Event Name Filter */}
         <div className="w-full sm:w-1/3">
           <label htmlFor="eventFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Name:</label>
           <select
@@ -287,6 +295,22 @@ function AdminDashboard() {
             ))}
           </select>
         </div>
+        {/* Event Type Filter */}
+        <div className="w-full sm:w-1/3">
+          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter by Event Type:</label>
+          <select
+            id="eventTypeFilter"
+            value={selectedEventType}
+            onChange={(e) => setSelectedEventType(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Event Types</option>
+            {EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+        {/* Export Buttons */}
         <div className="flex gap-2">
           <button
             onClick={() => exportToCSV()}
@@ -357,10 +381,10 @@ function AdminDashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventName ? `for ${selectedEventName}` : 'All Events'}`}>
+        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventName || selectedEventType ? `for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'All Events'}`}>
           <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
         </ChartCard>
-        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventName ? `for ${selectedEventName}` : 'All Events'}`}>
+        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventName || selectedEventType ? `for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'All Events'}`}>
           <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
         </ChartCard>
       </div>
@@ -430,7 +454,7 @@ function AdminDashboard() {
       {/* Feedback Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{selectedEventName ? `Recent Feedback for ${selectedEventName}` : 'Recent Feedback'}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{selectedEventName || selectedEventType ? `Recent Feedback for ${selectedEventName}${selectedEventName && selectedEventType ? ' & ' : ''}${selectedEventType}` : 'Recent Feedback'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

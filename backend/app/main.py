@@ -73,21 +73,24 @@ async def get_all_feedbacks():
 
 # API endpoint to fetch feedback summary with optional event type filter (using database)
 @app.get("/api/feedback-summary")
-async def feedback_summary(event_name: str | None = None):
+async def feedback_summary(event_name: str | None = None, event_type: str | None = None):
     """
-    Get feedback sentiment summary and recent feedbacks, optionally filtered by event name.
+    Get feedback sentiment summary and recent feedbacks, optionally filtered by event name and event type.
     """
     try:
         # Build the query filter
         filter_query = {}
         if event_name:
             filter_query["event"] = event_name
-            print(f"Filtering feedback summary by event: {event_name}") # Add logging
+            print(f"Filtering feedback summary by event: {event_name}")
+        if event_type:
+            filter_query["eventType"] = event_type
+            print(f"Filtering feedback summary by event type: {event_type}")
 
         # Use await with the async find method and to_list
         feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None)
 
-        print(f"Fetched {len(feedbacks)} feedbacks after filtering") # Add logging
+        print(f"Fetched {len(feedbacks)} feedbacks after filtering")
 
         sentiments = {"positive": 0, "neutral": 0, "negative": 0}
         for feedback in feedbacks:
@@ -97,7 +100,7 @@ async def feedback_summary(event_name: str | None = None):
         return {"sentiments": sentiments, "recent_feedback": feedbacks}
 
     except Exception as e:
-        print(f"Error in feedback_summary: {e}") # Add logging
+        print(f"Error in feedback_summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Submit feedback to database endpoint
