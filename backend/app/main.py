@@ -59,6 +59,9 @@ class FeedbackIn(BaseModel):
     comment: str
     rating: int
 
+class Event(BaseModel):
+    name: str
+
 # Submit feedback endpoint
 @app.post("/submit-feedback")
 async def submit_feedback(request: Request):
@@ -155,8 +158,8 @@ async def get_events():
             {"$project": {"_id": 0, "name": "$_id"}},
             {"$sort": {"name": 1}}
         ]
-        events = await db.feedbacks.aggregate(pipeline).to_list(length=None)
-        return {"events": [event["name"] for event in events]}
+        events = list(collection.aggregate(pipeline))  # Changed to use collection instead of db.feedbacks
+        return {"events": [event["name"] for event in events if event["name"]]}  # Filter out None/empty names
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -164,13 +167,13 @@ async def get_events():
 async def add_event(event: Event):
     try:
         # Check if event already exists
-        existing_event = await db.feedbacks.find_one({"event": event.name})
+        existing_event = collection.find_one({"event": event.name})
         if existing_event:
             raise HTTPException(status_code=400, detail="Event already exists")
         
         # Add a dummy feedback entry to create the event
         # This ensures the event appears in the unique events list
-        await db.feedbacks.insert_one({
+        collection.insert_one({
             "event": event.name,
             "name": "System",
             "eventType": "Other",
