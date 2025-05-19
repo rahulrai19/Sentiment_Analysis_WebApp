@@ -155,12 +155,18 @@ async def get_events():
             {"$sort": {"name": 1}}
         ]
         # Use await with the async aggregate method and to_list
-        events = await collection.aggregate(pipeline).to_list(length=None) # Added await and to_list
+        events_cursor = collection.aggregate(pipeline) # Get cursor
+        events_list = await events_cursor.to_list(length=None) # Convert to list
+        
         # Filter out None or empty event names
-        return {"events": [event["name"] for event in events if event["name"]] }
+        valid_events = [event["name"] for event in events_list if event and "name" in event and event["name"]]
+        
+        print(f"Successfully fetched events: {valid_events}") # Log success
+        return {"events": valid_events }
     except Exception as e:
-        print(f"Error in get_events: {e}") # Log the error for debugging
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error fetching events from DB: {e}") # Log specific DB error
+        # Return a 500 Internal Server Error with details
+        raise HTTPException(status_code=500, detail=f"Failed to fetch events: {e}")
 
 @app.post("/api/events")
 async def add_event(event: Event):
