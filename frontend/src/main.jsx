@@ -11,6 +11,8 @@ import Footer from "./components/Footer";
 import './index.css'
 import { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { AuthProvider } from "./components/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Simple navigation bar component
 function NavBar() {
@@ -82,23 +84,29 @@ function NavBar() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <>
-    <Router>
-      <Toaster position="top-center" />
-      <NavBar />
-      <Routes>
-        <Route path="/" element={
-          <>
-            <HeroSection />
-            <FeedbackForm />
-          </>
-        } />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/submit" element={<FeedbackForm />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </Router>
-    <Footer />
-  </>
+  <AuthProvider>
+    <>
+      <Router>
+        <Toaster position="top-center" />
+        <NavBar />
+        <Routes>
+          <Route path="/" element={
+            <>
+              <HeroSection />
+              <FeedbackForm />
+            </>
+          } />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/submit" element={<FeedbackForm />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Router>
+      <Footer />
+    </>
+  </AuthProvider>
 )
