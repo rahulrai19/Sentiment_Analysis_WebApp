@@ -79,6 +79,7 @@ function AdminDashboard() {
     totalSubmissions: 0,
     averageRating: 0
   });
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
 
   useEffect(() => {
     // Fetch available events when component mounts
@@ -124,6 +125,12 @@ function AdminDashboard() {
 
     fetchData();
   }, [selectedEventType]);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/optimized/Back1.webp';
+    img.onload = () => setBackgroundLoaded(true);
+  }, []);
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -331,6 +338,14 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-blue-200 p-8 relative overflow-hidden shadow-lg">
+      <div 
+        className={`fixed inset-0 z-0 transition-opacity duration-500 ${backgroundLoaded ? 'opacity-100' : 'opacity-0'}`}
+        style={{
+          backgroundImage: 'url("/optimized/Back1.webp")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      />
       <div className="p-6 bg-sky-500/20 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-sky-400 text-blue-100 space-y-8">
         <h1 className="text-3xl font-bold text-yellow-400 mb-6 drop-shadow">Admin Dashboard</h1>
 
