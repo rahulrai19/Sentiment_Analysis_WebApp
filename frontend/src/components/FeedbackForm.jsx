@@ -129,37 +129,12 @@ const FeedbackForm = () => {
     setLoading(false);
   };
 
-  if (submitted)
-    return (
-      <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100 text-center">
-        <h2 className="text-green-600 mb-4 text-2xl font-bold">Thank you for your feedback!</h2>
-        {sentiment && (
-          <div className="mt-4 p-3 bg-gray-100 rounded">
-            <strong>Sentiment:</strong> {sentiment}
-          </div>
-        )}
-        <button
-          className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-full shadow hover:bg-blue-700 transition text-lg font-semibold"
-          onClick={() => {
-            setFormData({
-              name: "",
-              event: "",
-              eventType: "",
-              comment: "",
-              rating: 7,
-            });
-            setSentiment(null);
-            setSubmitted(false);
-          }}
-        >
-          Submit Another Feedback
-        </button>
-      </div>
-    );
-
   return (
-    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white shadow-2xl rounded-2xl border border-blue-100">
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">Submit Feedback Form</h2>
+    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl border border-blue-100">
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">
+        Submit Feedback Form
+      </h2>
+
       {/* Dashboard Section */}
       <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
         <div className="flex items-center gap-4">
@@ -181,123 +156,317 @@ const FeedbackForm = () => {
           </div>
         </div>
       </div>
-      <div className="feedback-form-main">
-        <form onSubmit={handleSubmit} className="space-y-5">
+
+      {/* Form Section */}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Name Input */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-blue-700 mb-2">
+            Your Name
+          </label>
           <input
-            className="form-input border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 transition hover:border-blue-500 hover:shadow-md"
-            name="name"
-            placeholder="Your Name"
-            onChange={handleChange}
-            value={formData.name}
-            required
+            type="text"
             id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="form-input w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            placeholder="Enter your name"
           />
-          <div>
-            <label htmlFor="event" className="block text-sm font-medium text-gray-700 mb-2">Select Event/Club</label>
-            <select
-              id="event"
-              name="event"
-              value={formData.event}
-              onChange={handleChange}
-              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
-              required
-              style={{ width: "30%" }}
-            >
-              <option value="">Choose an event...</option>
-              {availableEvents.map((eventName, index) => (
-                <option key={index} value={eventName}>
-                  {eventName}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 mb-2">Select Event Type</label>
-            <select
-              className="form-select border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 text-center text-lg py-3 transition text-blue-700 hover:border-blue-500 hover:shadow-md"
-              id="eventType"
-              name="eventType"
-              value={formData.eventType}
-              onChange={handleChange}
-              required
-              style={{ width: "30%" }}
-            >
-              <option value="">Select Event Type</option>
-              {EVENT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="my-4">
-            <label htmlFor="rating" className="block font-semibold mb-2 text-blue-700">
-              Rating:
-              <span className="ml-2 text-xl align-middle">
-                {getEmojiForRating(formData.rating)} {formData.rating}
+        </div>
+
+        {/* Event Selection */}
+        <div>
+          <label htmlFor="event" className="block text-sm font-medium text-blue-700 mb-2">
+            Select Event
+          </label>
+          <select
+            id="event"
+            name="event"
+            value={formData.event}
+            onChange={handleChange}
+            required
+            className="form-select w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+          >
+            <option value="">Select an event</option>
+            {availableEvents.map((event) => (
+              <option key={event} value={event}>
+                {event}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Event Type */}
+        <div>
+          <label htmlFor="eventType" className="block text-sm font-medium text-blue-700 mb-2">
+            Event Type
+          </label>
+          <select
+            id="eventType"
+            name="eventType"
+            value={formData.eventType}
+            onChange={handleChange}
+            required
+            className="form-select w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+          >
+            <option value="">Select event type</option>
+            {EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Rating Section */}
+        <div className="max-w-xl mx-auto">
+          <label className="block text-sm font-medium text-blue-700 mb-4">
+            Rating
+          </label>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex items-center space-x-6 w-full">
+              <input
+                type="range"
+                name="rating"
+                min="1"
+                max="10"
+                value={formData.rating}
+                onChange={handleChange}
+                className="w-full h-3 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                style={{
+                  background: 'linear-gradient(to right, #93c5fd 0%, #3b82f6 100%)',
+                  height: '8px',
+                  borderRadius: '4px',
+                  outline: 'none',
+                  WebkitAppearance: 'none',
+                }}
+              />
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-3xl transform hover:scale-110 transition-transform duration-200">
+                {getEmojiForRating(formData.rating)}
               </span>
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={formData.rating}
-              onChange={handleSliderChange}
-              className="rating-slider mb-2 w-full max-w-2xl mx-auto"
-              style={{ 
-                accentColor: "#2563eb",
-                width: "50%",
-                height: "8px"
-              }}
-              id="rating"
-            />
+              <span className="text-2xl font-semibold text-blue-700">
+                {formData.rating}/10
+              </span>
+            </div>
           </div>
-          <div>
-            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">Your Feedback</label>
-            <textarea
-              className="form-textarea border border-blue-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 rounded-xl bg-blue-50 placeholder:text-blue-400 text-center text-lg py-3 mb-4 transition"
-              name="comment"
-              placeholder="Your Feedback"
-              onChange={handleChange}
-              value={formData.comment}
-              required
-              rows={5}
-              cols={50}
-              id="comment"
-            />
-          </div>
-          <div className="btn-block mt-2 flex justify-center">
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 px-10 rounded-full shadow-xl hover:from-blue-600 hover:to-blue-800 transition text-xl font-bold tracking-wide"
-              disabled={loading}
-            >
-              {loading ? "Submitting..." : "Submit"}
-            </button>
-          </div>
-        </form>
-      </div>
-      {/* Feedback Dashboard */}
+        </div>
+
+        {/* Comment Section */}
+        <div>
+          <label htmlFor="comment" className="block text-sm font-medium text-blue-700 mb-2">
+            Your Feedback
+          </label>
+          <textarea
+            id="comment"
+            name="comment"
+            value={formData.comment}
+            onChange={handleChange}
+            required
+            rows="4"
+            className="form-textarea w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            placeholder="Share your thoughts about the event..."
+          />
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex justify-center pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl shadow-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Submitting...
+              </>
+            ) : (
+              'Submit Feedback'
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Success Message */}
+      {submitted && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+          <p className="font-medium">Thank you for your feedback!</p>
+          <p className="text-sm mt-1">Your response has been recorded successfully.</p>
+        </div>
+      )}
+
+      {/* Submissions Section with Auto-Moving Cards */}
       <div className="mt-12">
-        <h3 className="text-lg font-semibold mb-4">All Submissions</h3>
-        <div className="feedback-dashboard grid gap-4 max-h-96 overflow-y-auto bg-blue-50 rounded-2xl p-4">
-          {allFeedbacks.length === 0 ? (
-            <p className="text-gray-500 text-center">No feedback submitted yet.</p>
-          ) : (
-            allFeedbacks.map((f, i) => (
-              <div
-                key={i}
-                className="feedback-card flex flex-col md:flex-row md:items-center gap-4 bg-white border border-blue-100 rounded-2xl shadow p-5 hover:shadow-lg transition"
-              >
-                <div className="flex-1">
-                  <div className="font-bold text-blue-700">{f.name}</div>
-                  <div className="text-sm text-gray-500">{f.event} &mdash; {f.eventType}</div>
+        <h3 className="text-xl font-semibold mb-6 text-blue-700 flex items-center gap-2">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Recent Submissions
+        </h3>
+        <div className="relative overflow-hidden group">
+          {/* Navigation Buttons */}
+          <button 
+            onClick={() => {
+              const container = document.querySelector('.feedback-cards-container');
+              if (container) {
+                // Calculate scroll distance based on card width and gap
+                const cardWidth = 256; // w-64 is 256px
+                const gap = 16; // space-x-4 is 16px
+                container.scrollLeft -= (cardWidth + gap);
+              }
+            }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button 
+            onClick={() => {
+              const container = document.querySelector('.feedback-cards-container');
+              if (container) {
+                 // Calculate scroll distance based on card width and gap
+                 const cardWidth = 256; // w-64 is 256px
+                 const gap = 16; // space-x-4 is 16px
+                 container.scrollLeft += (cardWidth + gap);
+              }
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <div className="feedback-dashboard bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
+            {allFeedbacks.length === 0 ? (
+              <div className="text-center py-8">
+                <svg className="mx-auto h-12 w-12 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p className="mt-2 text-blue-500">No feedback submitted yet.</p>
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="flex space-x-4 animate-scroll feedback-cards-container whitespace-nowrap">
+                  {allFeedbacks.map((f, i) => (
+                    <div
+                      key={i}
+                      className="feedback-card flex-shrink-0 w-64 bg-white border border-blue-100 rounded-xl shadow-sm p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-200"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                            {f.name.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold text-blue-700 truncate">
+                              {f.name}
+                            </h4>
+                            <span className="text-sm text-blue-500">
+                              {f.submissionDate && !isNaN(new Date(f.submissionDate).getTime())
+                                ? (() => {
+                                    const date = new Date(f.submissionDate);
+                                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                                    const day = date.getDate().toString().padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return `${month}/${day}/${year}`;
+                                  })()
+                                : 'Invalid Date'
+                              }
+                            </span>
+                          </div>
+                          <div className="mt-1">
+                            <p className="text-sm font-medium text-blue-600">
+                              {f.event}
+                            </p>
+                            <p className="text-sm text-blue-500">
+                              {f.eventType}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Render duplicate cards */}
+                  {allFeedbacks.map((f, i) => (
+                    <div
+                      key={`duplicate-${i}`}
+                      className="feedback-card flex-shrink-0 w-64 bg-white border border-blue-100 rounded-xl shadow-sm p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-200"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                            {f.name.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold text-blue-700 truncate">
+                              {f.name}
+                            </h4>
+                            <span className="text-sm text-blue-500">
+                              {f.submissionDate && !isNaN(new Date(f.submissionDate).getTime())
+                                ? (() => {
+                                    const date = new Date(f.submissionDate);
+                                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                                    const day = date.getDate().toString().padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return `${month}/${day}/${year}`;}
+                                )()
+                                : 'Invalid Date'
+                              }
+                            </span>
+                          </div>
+                          <div className="mt-1">
+                            <p className="text-sm font-medium text-blue-600">
+                              {f.event}
+                            </p>
+                            <p className="text-sm text-blue-500">
+                              {f.eventType}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))
-          )}
+            )}
+          </div>
+          {/* Gradient Overlays for Scroll Effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-50/50 to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-50/50 to-transparent pointer-events-none"></div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            /* Translate by the total width of one set of original cards including gaps */
+            transform: translateX(calc(-1 * ((${allFeedbacks.length} * 256px) + (${allFeedbacks.length} - 1) * 16px)));
+          }
+        }
+        .animate-scroll {
+          animation: scroll 95s linear infinite;
+          /* Remove scroll-behavior: smooth; from here */
+        }
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 };
