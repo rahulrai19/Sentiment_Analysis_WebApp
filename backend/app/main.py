@@ -119,8 +119,9 @@ class RateLimitMiddleware:
         self.requests = {}
         self.app = app # Store the app instance
 
-    async def __call__(self, request: Request, call_next):
-        client_ip = request.client.host
+    async def __call__(self, scope, receive, send):
+        # Get client IP from scope
+        client_ip = scope.get('client', [None])[0]
         current_time = time.time()
         
         # Clean up old requests
@@ -136,7 +137,8 @@ class RateLimitMiddleware:
             self.requests[client_ip] = []
         self.requests[client_ip].append(current_time)
         
-        return await call_next(request)
+        # Call the next middleware or application
+        await self.app(scope, receive, send)
 
 app.add_middleware(RateLimitMiddleware)
 
