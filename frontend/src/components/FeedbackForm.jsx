@@ -129,6 +129,39 @@ const FeedbackForm = () => {
     setLoading(false);
   };
 
+  if (submitted)
+    return (
+      <div className="max-w-3xl mx-auto mt-14 p-10 bg-blue-50/80 backdrop-blur-sm shadow-2xl rounded-2xl border border-blue-100 text-center">
+        <h2 className="text-blue-700 mb-4 text-3xl font-extrabold drop-shadow">
+          Thank You!
+        </h2>
+        <p className="text-blue-600 mb-6 text-lg font-medium">
+          Your feedback has been recorded successfully.
+        </p>
+        {sentiment && (
+          <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200 text-blue-800 font-semibold">
+            Sentiment: <span className="font-normal">{sentiment}</span>
+          </div>
+        )}
+        <button
+          className="mt-8 bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg shadow-lg hover:bg-yellow-500 transition-colors text-xl font-bold tracking-wide hover:scale-105 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+          onClick={() => {
+            setFormData({
+              name: "",
+              event: "",
+              eventType: "",
+              comment: "",
+              rating: 7,
+            });
+            setSentiment(null);
+            setSubmitted(false);
+          }}
+        >
+          Submit Another Feedback
+        </button>
+      </div>
+    );
+
   return (
     <div className="max-w-3xl mx-auto mt-14 p-10 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl border border-blue-100">
       <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">
@@ -293,14 +326,6 @@ const FeedbackForm = () => {
           </button>
         </div>
       </form>
-
-      {/* Success Message */}
-      {submitted && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-          <p className="font-medium">Thank you for your feedback!</p>
-          <p className="text-sm mt-1">Your response has been recorded successfully.</p>
-        </div>
-      )}
 
       {/* Submissions Section with Auto-Moving Cards */}
       <div className="mt-12">
