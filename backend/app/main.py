@@ -17,6 +17,7 @@ from pymongo.errors import ConnectionFailure
 import time
 import logging
 import asyncio
+from starlette.responses import JSONResponse
 
 # Load environment variables
 load_dotenv()
@@ -115,29 +116,34 @@ class Event(BaseModel):
 # Rate limiting middleware
 class RateLimitMiddleware:
     def __init__(self, app, requests_per_minute: int = 60):
+        self.app = app
         self.requests_per_minute = requests_per_minute
         self.requests = {}
-        self.app = app # Store the app instance
 
     async def __call__(self, scope, receive, send):
-        # Get client IP from scope
-        client_ip = scope.get('client', [None])[0]
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        client = scope.get("client")
+        client_ip = client[0] if client else "unknown"
         current_time = time.time()
-        
+
         # Clean up old requests
-        self.requests[client_ip] = [t for t in self.requests.get(client_ip, []) 
-                                  if current_time - t < 60]
-        
+        self.requests[client_ip] = [
+            t for t in self.requests.get(client_ip, []) if current_time - t < 60
+        ]
+
         # Check rate limit
-        if len(self.requests.get(client_ip, [])) >= self.requests_per_minute:
-            raise HTTPException(status_code=429, detail="Too many requests")
-        
+        if len(self.requests[client_ip]) >= self.requests_per_minute:
+            response = JSONResponse(
+                {"detail": "Too many requests"}, status_code=429
+            )
+            await response(scope, receive, send)
+            return
+
         # Add current request
-        if client_ip not in self.requests:
-            self.requests[client_ip] = []
         self.requests[client_ip].append(current_time)
-        
-        # Call the next middleware or application
         await self.app(scope, receive, send)
 
 app.add_middleware(RateLimitMiddleware)

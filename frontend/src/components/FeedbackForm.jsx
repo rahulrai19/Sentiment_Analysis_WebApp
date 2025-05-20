@@ -118,14 +118,7 @@ const FeedbackForm = () => {
       setSentiment(response.data.sentiment);
       setSubmitted(true);
       // Optionally re-fetch events after submitting
-      getUniqueEvents()
-        .then((res) => {
-          setAvailableEvents(res.data.events || []);
-        })
-        .catch((error) => {
-          console.error("Error fetching unique events after submission:", error);
-          setAvailableEvents([]);
-        });
+      setAvailableEvents(Array.isArray(response.data.events) ? response.data.events : []);
     } catch (error) {
       console.error("Submission failed:", error);
     }
@@ -227,7 +220,7 @@ const FeedbackForm = () => {
             className="form-select w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50"
           >
             <option value="">Select an event</option>
-            {availableEvents.map((event) => (
+            {(Array.isArray(availableEvents) ? availableEvents : []).map((event) => (
               <option key={event} value={event}>
                 {event}
               </option>
