@@ -163,29 +163,29 @@ const FeedbackForm = () => {
     );
 
   return (
-    <div className="max-w-3xl mx-auto mt-14 p-10 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl border border-blue-100">
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-700 drop-shadow">
+    <div className="max-w-3xl mx-auto mt-14 p-10 bg-blue-950/90 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-blue-700 text-blue-100">
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-yellow-400 drop-shadow">
         Submit Feedback Form
       </h2>
 
       {/* Dashboard Section */}
-      <div className="dashboard-section mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between items-center border border-blue-100 shadow">
+      <div className="dashboard-section mb-10 p-6 bg-blue-800/70 rounded-xl flex flex-col sm:flex-row justify-between items-center border border-blue-600 shadow-inner">
         <div className="flex items-center gap-4">
-          <div className="bg-blue-100 p-3 rounded-lg">
-            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+          <div className="bg-blue-700 p-3 rounded-lg">
+            <ChartBarIcon className="h-6 w-6 text-yellow-400" />
           </div>
           <div>
-            <span className="dashboard-label font-semibold">Total Submissions:</span>{" "}
-            <span className="dashboard-value">{dashboard.count}</span>
+            <span className="dashboard-label font-semibold text-blue-200">Total Submissions:</span>{" "}
+            <span className="dashboard-value text-white">{dashboard.count}</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="bg-blue-100 p-3 rounded-lg">
-            <ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />
+          <div className="bg-blue-700 p-3 rounded-lg">
+            <ChatBubbleLeftIcon className="h-6 w-6 text-yellow-400" />
           </div>
           <div>
-            <span className="dashboard-label font-semibold">Live Events:</span>{" "}
-            <span className="dashboard-value">{dashboard.totalEvents}</span>
+            <span className="dashboard-label font-semibold text-blue-200">Live Events:</span>{" "}
+            <span className="dashboard-value text-white">{dashboard.totalEvents}</span>
           </div>
         </div>
       </div>
@@ -194,7 +194,7 @@ const FeedbackForm = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Name Input */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-blue-700 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-blue-200 mb-2">
             Your Name
           </label>
           <input
@@ -204,14 +204,14 @@ const FeedbackForm = () => {
             value={formData.name}
             onChange={handleChange}
             required
-            className="form-input w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            className="form-input w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50 placeholder-blue-300"
             placeholder="Enter your name"
           />
         </div>
 
         {/* Event Selection */}
         <div>
-          <label htmlFor="event" className="block text-sm font-medium text-blue-700 mb-2">
+          <label htmlFor="event" className="block text-sm font-medium text-blue-200 mb-2">
             Select Event
           </label>
           <select
@@ -220,7 +220,7 @@ const FeedbackForm = () => {
             value={formData.event}
             onChange={handleChange}
             required
-            className="form-select w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            className="form-select w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50"
           >
             <option value="">Select an event</option>
             {availableEvents.map((event) => (
@@ -233,7 +233,7 @@ const FeedbackForm = () => {
 
         {/* Event Type */}
         <div>
-          <label htmlFor="eventType" className="block text-sm font-medium text-blue-700 mb-2">
+          <label htmlFor="eventType" className="block text-sm font-medium text-blue-200 mb-2">
             Event Type
           </label>
           <select
@@ -242,7 +242,7 @@ const FeedbackForm = () => {
             value={formData.eventType}
             onChange={handleChange}
             required
-            className="form-select w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            className="form-select w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50"
           >
             <option value="">Select event type</option>
             {EVENT_TYPES.map((type) => (
@@ -255,7 +255,7 @@ const FeedbackForm = () => {
 
         {/* Rating Section */}
         <div className="max-w-xl mx-auto">
-          <label className="block text-sm font-medium text-blue-700 mb-4">
+          <label className="block text-sm font-medium text-blue-200 mb-4">
             Rating
           </label>
           <div className="flex flex-col items-center space-y-4">
@@ -281,7 +281,7 @@ const FeedbackForm = () => {
               <span className="text-3xl transform hover:scale-110 transition-transform duration-200">
                 {getEmojiForRating(formData.rating)}
               </span>
-              <span className="text-2xl font-semibold text-blue-700">
+              <span className="text-2xl font-semibold text-blue-200">
                 {formData.rating}/10
               </span>
             </div>
@@ -290,7 +290,7 @@ const FeedbackForm = () => {
 
         {/* Comment Section */}
         <div>
-          <label htmlFor="comment" className="block text-sm font-medium text-blue-700 mb-2">
+          <label htmlFor="comment" className="block text-sm font-medium text-blue-200 mb-2">
             Your Feedback
           </label>
           <textarea
@@ -300,7 +300,7 @@ const FeedbackForm = () => {
             onChange={handleChange}
             required
             rows="4"
-            className="form-textarea w-full max-w-xl mx-auto bg-blue-50/50 border-blue-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-300 focus:shadow-lg"
+            className="form-textarea w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50 placeholder-blue-300"
             placeholder="Share your thoughts about the event..."
           />
         </div>
@@ -310,11 +310,11 @@ const FeedbackForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl shadow-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl shadow-lg text-blue-950 bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -329,8 +329,8 @@ const FeedbackForm = () => {
 
       {/* Submissions Section with Auto-Moving Cards */}
       <div className="mt-12">
-        <h3 className="text-xl font-semibold mb-6 text-blue-700 flex items-center gap-2">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <h3 className="text-xl font-semibold mb-6 text-yellow-400 flex items-center gap-2">
+          <svg className="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           Recent Submissions
@@ -341,13 +341,12 @@ const FeedbackForm = () => {
             onClick={() => {
               const container = document.querySelector('.feedback-cards-container');
               if (container) {
-                // Calculate scroll distance based on card width and gap
                 const cardWidth = 256; // w-64 is 256px
                 const gap = 16; // space-x-4 is 16px
                 container.scrollLeft -= (cardWidth + gap);
               }
             }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-blue-700/80 hover:bg-blue-600 text-blue-100 p-2 rounded-full shadow-lg border border-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -357,26 +356,25 @@ const FeedbackForm = () => {
             onClick={() => {
               const container = document.querySelector('.feedback-cards-container');
               if (container) {
-                 // Calculate scroll distance based on card width and gap
                  const cardWidth = 256; // w-64 is 256px
                  const gap = 16; // space-x-4 is 16px
                  container.scrollLeft += (cardWidth + gap);
               }
             }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg border border-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-blue-700/80 hover:bg-blue-600 text-blue-100 p-2 rounded-full shadow-lg border border-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
 
-          <div className="feedback-dashboard bg-blue-50/50 rounded-2xl p-6 border border-blue-100">
+          <div className="feedback-dashboard bg-blue-800/50 rounded-xl p-6 border border-blue-700">
             {allFeedbacks.length === 0 ? (
               <div className="text-center py-8">
-                <svg className="mx-auto h-12 w-12 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                <p className="mt-2 text-blue-500">No feedback submitted yet.</p>
+                <p className="mt-2 text-blue-300">No feedback submitted yet.</p>
               </div>
             ) : (
               <div className="relative">
@@ -384,62 +382,20 @@ const FeedbackForm = () => {
                   {allFeedbacks.map((f, i) => (
                     <div
                       key={i}
-                      className="feedback-card flex-shrink-0 w-64 bg-white border border-blue-100 rounded-xl shadow-sm p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-200"
+                      className="feedback-card flex-shrink-0 w-64 bg-blue-900/70 border border-blue-700 rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-600 text-blue-100"
                     >
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                          <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-yellow-400 font-semibold">
                             {f.name.charAt(0).toUpperCase()}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h4 className="text-lg font-semibold text-blue-700 truncate">
+                            <h4 className="text-lg font-semibold text-yellow-400 truncate">
                               {f.name}
                             </h4>
-                            <span className="text-sm text-blue-500">
-                              {f.submissionDate && !isNaN(new Date(f.submissionDate).getTime())
-                                ? (() => {
-                                    const date = new Date(f.submissionDate);
-                                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                                    const day = date.getDate().toString().padStart(2, '0');
-                                    const year = date.getFullYear();
-                                    return `${month}/${day}/${year}`;
-                                  })()
-                                : 'Invalid Date'
-                              }
-                            </span>
-                          </div>
-                          <div className="mt-1">
-                            <p className="text-sm font-medium text-blue-600">
-                              {f.event}
-                            </p>
-                            <p className="text-sm text-blue-500">
-                              {f.eventType}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {/* Render duplicate cards */}
-                  {allFeedbacks.map((f, i) => (
-                    <div
-                      key={`duplicate-${i}`}
-                      className="feedback-card flex-shrink-0 w-64 bg-white border border-blue-100 rounded-xl shadow-sm p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-200"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-                            {f.name.charAt(0).toUpperCase()}
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-lg font-semibold text-blue-700 truncate">
-                              {f.name}
-                            </h4>
-                            <span className="text-sm text-blue-500">
+                            <span className="text-sm text-blue-300">
                               {f.submissionDate && !isNaN(new Date(f.submissionDate).getTime())
                                 ? (() => {
                                     const date = new Date(f.submissionDate);
@@ -453,10 +409,52 @@ const FeedbackForm = () => {
                             </span>
                           </div>
                           <div className="mt-1">
-                            <p className="text-sm font-medium text-blue-600">
+                            <p className="text-sm font-medium text-blue-200">
                               {f.event}
                             </p>
-                            <p className="text-sm text-blue-500">
+                            <p className="text-sm text-blue-300">
+                              {f.eventType}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Render duplicate cards */}
+                  {allFeedbacks.map((f, i) => (
+                    <div
+                      key={`duplicate-${i}`}
+                      className="feedback-card flex-shrink-0 w-64 bg-blue-900/70 border border-blue-700 rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-600 text-blue-100"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-yellow-400 font-semibold">
+                            {f.name.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold text-yellow-400 truncate">
+                              {f.name}
+                            </h4>
+                            <span className="text-sm text-blue-300">
+                              {f.submissionDate && !isNaN(new Date(f.submissionDate).getTime())
+                                ? (() => {
+                                    const date = new Date(f.submissionDate);
+                                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                                    const day = date.getDate().toString().padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return `${month}/${day}/${year}`;}
+                                )()
+                                : 'Invalid Date'
+                              }
+                            </span>
+                          </div>
+                          <div className="mt-1">
+                            <p className="text-sm font-medium text-blue-200">
+                              {f.event}
+                            </p>
+                            <p className="text-sm text-blue-300">
                               {f.eventType}
                             </p>
                           </div>
@@ -469,8 +467,8 @@ const FeedbackForm = () => {
             )}
           </div>
           {/* Gradient Overlays for Scroll Effect */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-50/50 to-transparent pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-50/50 to-transparent pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-blue-950/90 to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-blue-950/90 to-transparent pointer-events-none"></div>
         </div>
       </div>
 
@@ -481,11 +479,13 @@ const FeedbackForm = () => {
           }
           100% {
             /* Translate by the total width of one set of original cards including gaps */
-            transform: translateX(calc(-1 * ((${allFeedbacks.length} * 256px) + (${allFeedbacks.length} - 1) * 16px)));
+            transform: translateX(calc(-1 * ((${
+              allFeedbacks.length
+            } * 256px) + (${allFeedbacks.length - 1} * 16px))));
           }
         }
         .animate-scroll {
-          animation: scroll 95s linear infinite;
+          animation: scroll 95s linear infinite; /* Adjusted duration */
           /* Remove scroll-behavior: smooth; from here */
         }
         .animate-scroll:hover {

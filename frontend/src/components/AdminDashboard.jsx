@@ -160,10 +160,10 @@ function AdminDashboard() {
 
   const getSentimentColor = (sentiment) => {
     switch (sentiment) {
-      case 'positive': return 'text-green-600 bg-green-50';
-      case 'neutral': return 'text-yellow-600 bg-yellow-50';
-      case 'negative': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'positive': return 'text-green-400 bg-green-900/30';
+      case 'neutral': return 'text-yellow-400 bg-yellow-900/30';
+      case 'negative': return 'text-red-400 bg-red-900/30';
+      default: return 'text-gray-400 bg-gray-900/30';
     }
   };
 
@@ -247,266 +247,212 @@ function AdminDashboard() {
         `"${(feedback.comment || '').replace(/"/g, '""')}"`, // Escape quotes in comments
         feedback.rating || '',
         feedback.sentiment || '',
-        feedback.createdAt ? new Date(feedback.createdAt).toLocaleDateString() : ''
+        feedback.createdAt ? new Date(feedback.createdAt).toISOString() : '' // Use ISO string for CSV consistency
       ]);
 
       // Combine headers and rows
-      const csvContent = [
-        headers.join(','),
-        ...csvRows.map(row => row.join(','))
-      ].join('\n');
+      const csvContent = [headers.join(','), ...csvRows.map(row => row.join(','))].join('\n');
 
-      // Create and trigger download
+      // Create a blob and download link
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      // Use selectedEventName in the filename if available
-      link.setAttribute('download', `feedback_export_${selectedEventName || selectedEventType || 'all'}_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      const filename = selectedEventName ? `feedback_${selectedEventName.replace(/\s+/g, '_')}.csv` : 'all_feedback.csv';
+      link.setAttribute('download', filename);
       link.click();
-      document.body.removeChild(link);
 
-      toast.success(`Successfully exported ${feedbackToExport.length} feedback entries for ${selectedEventName || selectedEventType || 'all events'}`);
+      toast.success('Feedback data exported successfully!');
     } catch (error) {
-      console.error('Error exporting to CSV:', error);
-      toast.error('Failed to export feedback data');
+      console.error('Error exporting feedback data:', error);
+      toast.error('Failed to export feedback data.');
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
+    <div className="min-h-screen bg-gray-900 text-blue-200 p-8 relative overflow-hidden shadow-lg">
+      <div className="p-6 bg-sky-500/20 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-sky-400 text-blue-100 space-y-8">
+        <h1 className="text-3xl font-bold text-yellow-400 mb-6 drop-shadow">Admin Dashboard</h1>
 
-      {/* Filter and Export Section */}
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        {/* Event Name Filter (for Export only) */}
-        <div className="w-full sm:w-1/3">
-          <label htmlFor="eventFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter for Export (by Event Name):</label>
-          <select
-            id="eventFilter"
-            value={selectedEventName}
-            onChange={(e) => setSelectedEventName(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">All Events (for Export)</option>
-            {availableEvents.map((event) => (
-              <option key={event} value={event}>{event}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <SummaryCard 
+            icon={<ChartBarIcon className="h-6 w-6" />} 
+            label="Total Submissions" 
+            value={dashboardStats.totalSubmissions}
+            bg="bg-sky-400/20"
+          />
+          <SummaryCard 
+            icon={<StarIcon className="h-6 w-6" />} 
+            label="Average Rating" 
+            value={dashboardStats.averageRating}
+            bg="bg-sky-400/20"
+          />
+          <SummaryCard 
+            icon={<ChatBubbleLeftIcon className="h-6 w-6" />} 
+            label="Sentiment Distribution"
+            value="View Chart"
+            bg="bg-sky-400/20"
+          />
         </div>
-        {/* Event Type Filter (for Display) */}
-        <div className="w-full sm:w-1/3">
-          <label htmlFor="eventTypeFilter" className="block text-sm font-medium text-gray-700 mb-2">Filter for Display (by Event Type):</label>
-          <select
-            id="eventTypeFilter"
-            value={selectedEventType}
-            onChange={(e) => setSelectedEventType(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">All Event Types (for Display)</option>
-            {EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-        {/* Export Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => exportToCSV()}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-            Export Filtered Data
-          </button>
-        </div>
-      </div>
 
-      {/* Dashboard Overview Section */}
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Total Submissions Card */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-[1.02] transition-all duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm font-medium mb-1">Total Submissions</p>
-                <p className="text-3xl font-bold">{dashboardStats.totalSubmissions}</p>
-              </div>
-              <div className="bg-blue-400/20 p-3 rounded-lg">
-                <ChartBarIcon className="h-8 w-8" />
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-blue-400/20">
-              <p className="text-blue-100 text-sm">Feedback submissions for selected type</p>
-            </div>
-          </div>
-
-          {/* Average Rating Card */}
-          <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-[1.02] transition-all duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-100 text-sm font-medium mb-1">Average Rating</p>
-                <div className="flex items-center">
-                  <p className="text-3xl font-bold">{dashboardStats.averageRating}</p>
-                  <span className="ml-2 text-yellow-100">/ 10</span>
-                </div>
-              </div>
-              <div className="bg-yellow-400/20 p-3 rounded-lg">
-                <StarIcon className="h-8 w-8" />
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-yellow-400/20">
-              <p className="text-yellow-100 text-sm">Overall satisfaction for selected type</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <SummaryCard icon={<ChatBubbleLeftIcon className="h-6 w-6 text-blue-600" />} label="Total Feedback" value={feedbacks.length} bg="blue-50" />
-        <SummaryCard icon={<FaceSmileIcon className="h-6 w-6 text-green-600" />} label="Positive" value={sentimentCounts.positive} bg="green-50" />
-        <SummaryCard icon={<MinusCircleIcon className="h-6 w-6 text-yellow-600" />} label="Neutral" value={sentimentCounts.neutral} bg="yellow-50" />
-        <SummaryCard icon={<FaceFrownIcon className="h-6 w-6 text-red-600" />} label="Negative" value={sentimentCounts.negative} bg="red-50" />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <ChartCard title={`Sentiment Distribution (Pie) ${selectedEventType ? `for ${selectedEventType}` : 'All Event Types'}`}>
-          <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
-        </ChartCard>
-        <ChartCard title={`Sentiment Distribution (Bar) ${selectedEventType ? `for ${selectedEventType}` : 'All Event Types'}`}>
-          <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
-        </ChartCard>
-      </div>
-
-      {/* Section to Add New Event */}
-      <div className="add-event-section mb-8 p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl border border-green-100 shadow">
-        <h3 className="text-2xl font-bold mb-4 text-green-700">Manage Events/Clubs</h3>
-        
-        {/* Display Existing Events */}
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold text-gray-700 mb-3">Existing Events:</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {availableEvents.map((event, index) => (
-              <div 
-                key={index}
-                className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between group hover:border-red-200 transition-colors"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-sky-400/20 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+            <h3 className="text-xl font-semibold text-yellow-400 mb-4">Filter Feedbacks</h3>
+            <div>
+              <label htmlFor="filterEvent" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event</label>
+              <select
+                id="filterEvent"
+                value={selectedEventName}
+                onChange={e => setSelectedEventName(e.target.value)}
+                className="w-full px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/50 text-blue-100"
               >
-                <span className="text-gray-700">{event}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">#{index + 1}</span>
-                  <button
-                    onClick={() => handleDeleteEvent(event)}
-                    className="p-1 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                    title="Delete event"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                <option value="">All Events</option>
+                {availableEvents.map(event => (
+                  <option key={event} value={event}>{event}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="filterEventType" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event Type</label>
+              <select
+                id="filterEventType"
+                value={selectedEventType}
+                onChange={e => setSelectedEventType(e.target.value)}
+                className="w-full px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/50 text-blue-100"
+              >
+                <option value="">All Types</option>
+                {EVENT_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={() => exportToCSV(selectedEventName)}
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-blue-950 bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+              Export to CSV
+            </button>
+          </div>
+
+          <div className="bg-sky-400/20 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+            <h3 className="text-xl font-semibold text-yellow-400 mb-4">Manage Events</h3>
+            <form onSubmit={handleAddEvent} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="New event name"
+                value={newEventName}
+                onChange={e => setNewEventName(e.target.value)}
+                className="flex-grow px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/50 text-blue-100 placeholder-blue-300"
+                disabled={addEventLoading}
+                required
+              />
+              <button
+                type="submit"
+                className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-6 py-3 rounded-lg transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={addEventLoading}
+              >
+                {addEventLoading ? 'Adding...' : 'Add Event'}
+              </button>
+            </form>
+            {addEventSuccess && (
+              <p className="text-green-400 text-sm">Event added successfully!</p>
+            )}
+            <div className="mt-4">
+              <h4 className="text-lg font-medium text-blue-200 mb-2">Available Events</h4>
+              <ul className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide pr-2">
+                {availableEvents.length === 0 ? (
+                  <li className="text-blue-300 text-sm italic">No events added yet.</li>
+                ) : (
+                  availableEvents.map(event => (
+                    <li key={event} className="flex justify-between items-center bg-sky-400/20 rounded-md p-2 border border-sky-400">
+                      <span className="text-blue-100 text-sm">{event}</span>
+                      <button 
+                        onClick={() => handleDeleteEvent(event)}
+                        className="text-red-400 hover:text-red-500 transition-colors duration-200"
+                        aria-label={`Delete event ${event}`}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
           </div>
         </div>
 
-        {/* Add New Event Form */}
-        <div className="border-t border-green-200 pt-4">
-          <h4 className="text-lg font-semibold text-gray-700 mb-3">Add New Event:</h4>
-          <form onSubmit={handleAddEvent} className="flex flex-col sm:flex-row gap-4">
-            <input
-              type="text"
-              className="flex-grow form-input border border-green-300 focus:border-green-600 focus:ring-2 focus:ring-green-200 rounded-xl bg-green-50 placeholder:text-green-400 text-lg py-3 px-4 transition hover:border-green-500 hover:shadow-md"
-              placeholder="Enter New Event Name"
-              value={newEventName}
-              onChange={(e) => setNewEventName(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-green-500 to-green-700 text-white py-3 px-8 rounded-full shadow-xl hover:from-green-600 hover:to-green-800 transition text-lg font-bold tracking-wide flex items-center justify-center"
-              disabled={addEventLoading}
-            >
-              {addEventLoading ? (
-                <svg className="animate-spin h-5 w-5 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                "Add Event"
-              )}
-            </button>
-          </form>
-          {addEventSuccess && (
-            <p className="mt-3 text-center text-green-600 font-semibold">Event added successfully!</p>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <ChartCard title="Feedback Sentiment Distribution">
+            <Pie data={pieChartData} />
+          </ChartCard>
+          <ChartCard title="Sentiment Counts (Bar Chart)">
+            <Bar data={barChartData} options={barChartOptions} />
+          </ChartCard>
         </div>
-      </div>
 
-      {/* Feedback Table */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{selectedEventType ? `Recent Feedback for ${selectedEventType}` : 'Recent Feedback'}</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {['Name', 'Event', 'Type', 'Comment', 'Rating', 'Sentiment', 'Date'].map(header => (
-                  <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {feedbacks.slice().reverse().map((item, idx) => (
-                <tr key={item._id || idx} className="hover:bg-blue-50 transition cursor-pointer">
-                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{item.name || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{item.event || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.eventType || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{item.comment || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-blue-700 font-bold">{item.rating || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSentimentColor(item.sentiment)}`}>
-                      {item.sentiment ? item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1) : '-'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
-                </tr>
-              ))}
-               {feedbacks.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">No feedback found for this type.</td>
-                  </tr>
-                )}
-            </tbody>
-          </table>
+        <div className="bg-sky-500/20 border border-sky-400 rounded-md shadow-md p-6">
+          <h3 className="text-xl font-semibold text-yellow-400 mb-4">Recent Feedbacks</h3>
+          <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
+            {feedbacks.length === 0 ? (
+              <p className="text-blue-300 text-sm italic text-center">No feedbacks matching filter criteria.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-sky-400">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Name</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Event</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Event Type</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Comment</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Rating</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Sentiment</th>
+                      <th className="px-6 py-3 bg-sky-400/20 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-sky-400/20 divide-y divide-sky-400">
+                    {feedbacks.map((feedback, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-100">{feedback.name || 'Anonymous'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{feedback.event || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{feedback.eventType || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{feedback.comment || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{feedback.rating || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{feedback.sentiment || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">{formatDate(feedback.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Reusable Summary Card Component
 function SummaryCard({ icon, label, value, bg }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition cursor-pointer">
-      <div className="flex items-center gap-4">
-        <div className={`p-3 rounded-lg bg-${bg}`}>{icon}</div>
-        <div>
-          <p className="text-sm text-gray-600">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-        </div>
+    <div className={`rounded-xl p-5 flex items-center space-x-4 shadow-inner border border-sky-400 ${bg}`}>
+      <div className="flex-shrink-0 text-yellow-400">
+        {icon}
+      </div>
+      <div>
+        <div className="text-blue-200 text-sm font-medium">{label}</div>
+        <div className="text-white text-2xl font-bold">{value}</div>
       </div>
     </div>
   );
 }
 
-// Reusable Chart Card
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
-      <div className="h-64">{children}</div>
+    <div className="bg-sky-800/70 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+      <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
+      <div className="chart-container">
+        {children}
+      </div>
     </div>
   );
 }

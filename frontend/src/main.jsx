@@ -27,11 +27,11 @@ function BackgroundWrapper({ children }) {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
-          opacity: 0.15
+          opacity: 0.8,
         }}
       />
-      {/* Content */}
-      <div className="relative z-10 pt-4">
+      {/* Content - Removed pt-4 for less gap below navbar and adjusted max-w for increased width */}
+      <div className="relative z-10 max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </div>
     </div>
@@ -132,7 +132,7 @@ function NavBar() {
   };
 
   return (
-    <nav className="w-full bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 py-4 shadow-xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+    <nav className="w-full bg-gradient-to-br from-blue-950 via-blue-800 to-blue-950 py-4 shadow-xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Logo and Brand */}
         <div className="flex items-center">
@@ -207,14 +207,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Toaster position="top-center" />
       <NavBar />
       <BackgroundWrapper>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 pb-8">
           <Routes>
             <Route path="/" element={
               <div className="space-y-12">
                 <HeroSection />
-                <div className="mt-8">
-                  <FeedbackForm />
-                </div>
               </div>
             } />
             <Route path="/admin" element={
@@ -250,8 +247,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             } />
           </Routes>
         </div>
-        <Footer />
       </BackgroundWrapper>
+      <Footer />
     </AuthProvider>
   </BrowserRouter>
 )
