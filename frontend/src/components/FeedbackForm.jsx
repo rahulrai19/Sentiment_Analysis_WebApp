@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { submitFeedback, getFeedbacks, getUniqueEvents } from "../services/api";
 import { Bars3Icon, ChatBubbleLeftIcon, ChartBarIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from 'react-router-dom';
 
 const EVENT_TYPES = [
   "Workshop",
@@ -58,6 +59,8 @@ const FeedbackForm = () => {
 
   // New state for available events
   const [availableEvents, setAvailableEvents] = useState([]);
+
+  const navigate = useNavigate();
 
   // Fetch dashboard data AND the list of unique events
   useEffect(() => {
@@ -155,6 +158,7 @@ const FeedbackForm = () => {
             });
             setSentiment(null);
             setSubmitted(false);
+            navigate('/');
           }}
         >
           Submit Another Feedback
