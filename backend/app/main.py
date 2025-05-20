@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends, Security
 from .routes.api import router
 from .middleware.logging import LoggingMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +16,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ConnectionFailure
 import time
 import logging
+import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -38,9 +39,9 @@ app = FastAPI(
 )
 
 # Security
-api_key_header = APIKeyHeader(name="X-API-Key")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
 
-async def verify_api_key(api_key: str = Depends(api_key_header)):
+async def verify_api_key(api_key: str = Security(api_key_header)):
     if not API_KEY or api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API key")
     return api_key
@@ -57,8 +58,8 @@ app.add_middleware(LoggingMiddleware)
 
 # Database connection with retry mechanism
 async def get_database():
-    max_retries = 3
-    retry_delay = 1  # seconds
+    max_retries = 5
+    retry_delay = 2  # seconds
     
     for attempt in range(max_retries):
         try:
@@ -66,13 +67,13 @@ async def get_database():
             # Verify connection
             await client.admin.command('ping')
             return client["feedbackDB"]
-        except ConnectionFailure as e:
-            if attempt == max_retries - 1:
-                logger.error(f"Failed to connect to MongoDB after {max_retries} attempts")
+        except Exception as e:
+            logger.error(f"Attempt {attempt + 1}/{max_retries} failed to connect to MongoDB: {str(e)}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(retry_delay)
+            else:
+                logger.error("Failed to connect to MongoDB after all retries")
                 raise HTTPException(status_code=500, detail="Database connection failed")
-            logger.warning(f"Database connection attempt {attempt + 1} failed, retrying...")
-            time.sleep(retry_delay)
-            retry_delay *= 2  # Exponential backoff
 
 # Initialize database connection
 db = None
@@ -315,3 +316,9 @@ async def delete_event(event_name: str):
 @app.get("/", include_in_schema=False)
 async def read_root():
     return {"message": "FastAPI Sentiment Backend is running"}
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    if db:
+        db.client.close()
+        logger.info("MongoDB connection closed")
