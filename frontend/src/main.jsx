@@ -23,7 +23,7 @@ function BackgroundWrapper({ children }) {
       <div 
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: 'url("/Back1.jpg")',
+          backgroundImage: 'url("/optimized/Back1.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',

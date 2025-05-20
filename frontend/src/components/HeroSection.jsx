@@ -8,7 +8,7 @@ function HeroSection() {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: 'url("/banner1.jpg")',
+          backgroundImage: 'url("/optimized/banner1.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           width: '100%',
