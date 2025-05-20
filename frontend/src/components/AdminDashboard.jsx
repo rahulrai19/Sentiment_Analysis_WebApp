@@ -86,11 +86,7 @@ function AdminDashboard() {
     // Fetch available events when component mounts
     const fetchAvailableEvents = async () => {
       try {
-<<<<<<< HEAD
         const response = await axios.get(`${API_BASE}/api/events`);
-=======
-        const response = await axios.get(`${API_BASE}/api/events`); // Removed headers
->>>>>>> parent of 95b6a87 (db)
         setAvailableEvents(response.data.events || []);
       } catch (error) {
         console.error("Error fetching available events:", error);
