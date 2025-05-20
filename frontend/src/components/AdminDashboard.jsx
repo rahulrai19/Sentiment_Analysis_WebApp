@@ -24,7 +24,6 @@ const EVENT_TYPES = [
 
 // Update the API base URL to use environment variable
 const API_BASE = process.env.REACT_APP_API_URL || 'https://sentiment-s0y3.onrender.com';
-const API_KEY = process.env.REACT_APP_API_KEY; // Get API key from environment variable
 
 const submitFeedback = async (formData) => {
   try {
@@ -59,10 +58,8 @@ const fetchSummary = async (eventName = null, eventType = null) => {
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
-    
-    const headers = API_KEY ? { 'X-API-Key': API_KEY } : {}; // Add API key to headers
 
-    const response = await axios.get(url, { headers }); // Pass headers to axios.get
+    const response = await axios.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching summary:', error);
@@ -89,8 +86,7 @@ function AdminDashboard() {
     // Fetch available events when component mounts
     const fetchAvailableEvents = async () => {
       try {
-        const headers = API_KEY ? { 'X-API-Key': API_KEY } : {}; // Add API key to headers
-        const response = await axios.get(`${API_BASE}/api/events`, { headers }); // Pass headers
+        const response = await axios.get(`${API_BASE}/api/events`); // Removed headers
         setAvailableEvents(response.data.events || []);
       } catch (error) {
         console.error("Error fetching available events:", error);
@@ -531,7 +527,7 @@ function ChartCard({ title, children }) {
   return (
     <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
-      <div className="chart-container" style={{ height: '300px', width: '100%', position: 'relative' }}>
+      <div className="chart-container">
         {children}
       </div>
     </div>
