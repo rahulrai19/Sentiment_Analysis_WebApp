@@ -67,7 +67,10 @@ const FeedbackForm = () => {
     // Fetch dashboard data AND the list of unique events
     getFeedbacks()
       .then((res) => {
-        const feedbacks = res.data || [];
+        // Always extract the feedbacks array from res.data.data if present
+        const feedbacks = Array.isArray(res.data)
+          ? res.data
+          : (Array.isArray(res.data.data) ? res.data.data : []);
         setAllFeedbacks(feedbacks);
         const count = feedbacks.length;
         setDashboard(prev => ({ ...prev, count }));
