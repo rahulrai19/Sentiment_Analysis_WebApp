@@ -374,7 +374,7 @@ function AdminDashboard() {
           <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
             <h3 className="text-xl font-semibold text-yellow-400 mb-4">Filter Feedbacks</h3>
             <div>
-              <label htmlFor="filterEvent" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event</label>
+              <label htmlFor="filterEvent" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event(export only)</label>
               <select
                 id="filterEvent"
                 value={selectedEventName}
@@ -388,7 +388,7 @@ function AdminDashboard() {
               </select>
             </div>
             <div>
-              <label htmlFor="filterEventType" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event Type</label>
+              <label htmlFor="filterEventType" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event Type(changes To Display Data specific)</label>
               <select
                 id="filterEventType"
                 value={selectedEventType}
