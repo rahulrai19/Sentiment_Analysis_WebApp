@@ -1,0 +1,88 @@
+.footer-container {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 50%, rgba(26, 26, 46, 0.95) 100%);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.footer-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+}
+
+.footer-brand {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.footer-brand:hover {
+  transform: translateY(-2px);
+}
+
+.footer-brand-glow {
+  position: absolute;
+  inset: -4px;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.3) 0%, transparent 70%);
+  border-radius: 9999px;
+  filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.footer-brand:hover .footer-brand-glow {
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.4) 0%, transparent 70%);
+}
+
+.footer-link {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #eab308;
+  transition: width 0.2s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-divider {
+  background: linear-gradient(90deg, transparent, rgba(234, 179, 8, 0.3), transparent);
+  height: 1px;
+}
+
+.footer-social-icon {
+  transition: all 0.2s ease;
+}
+
+.footer-social-icon:hover {
+  transform: translateY(-2px);
+  color: #eab308;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+  }
+}
+
+.footer-container {
+  animation: glow 3s infinite;
+} 

@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from .routes.api import router
 from .middleware.logging import LoggingMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
 import os
 from dotenv import load_dotenv
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -11,34 +12,75 @@ import datetime
 from typing import List, Optional
 import motor.motor_asyncio
 from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.errors import ConnectionFailure
+import time
+import logging
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Environment variables with fallbacks
 MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise ValueError("MONGO_URI environment variable is not set")
+
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://verbose-feedbacker.netlify.app").split(",")
+API_KEY = os.getenv("API_KEY")
 
 app = FastAPI(
     title="FastAPI Sentiment Backend",
     version="v1"
 )
 
-# Allow CORS from any origin (adjust for production)
+# Security
+api_key_header = APIKeyHeader(name="X-API-Key")
+
+async def verify_api_key(api_key: str = Depends(api_key_header)):
+    if not API_KEY or api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    return api_key
+
+# CORS middleware with specific origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://verbose-feedbacker.netlify.app",
-        "*" # Temporarily allow all origins for easier testing, adjust for production
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"],
 )
 app.add_middleware(LoggingMiddleware)
 
-# Database connection (using motor for async)
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+# Database connection with retry mechanism
+async def get_database():
+    max_retries = 3
+    retry_delay = 1  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            client = AsyncIOMotorClient(MONGO_URI)
+            # Verify connection
+            await client.admin.command('ping')
+            return client["feedbackDB"]
+        except ConnectionFailure as e:
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to connect to MongoDB after {max_retries} attempts")
+                raise HTTPException(status_code=500, detail="Database connection failed")
+            logger.warning(f"Database connection attempt {attempt + 1} failed, retrying...")
+            time.sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
 
-# Access the database (MongoDB creates it on first write)
-db = client["feedbackDB"]
+# Initialize database connection
+db = None
+
+@app.on_event("startup")
+async def startup_db_client():
+    global db
+    db = await get_database()
 
 # Access the collection (MongoDB creates it on first write)
 collection = db["feedback"]
@@ -63,13 +105,58 @@ class FeedbackIn(BaseModel):
 class Event(BaseModel):
     name: str
 
+# Rate limiting middleware
+class RateLimitMiddleware:
+    def __init__(self, requests_per_minute: int = 60):
+        self.requests_per_minute = requests_per_minute
+        self.requests = {}
+
+    async def __call__(self, request: Request, call_next):
+        client_ip = request.client.host
+        current_time = time.time()
+        
+        # Clean up old requests
+        self.requests[client_ip] = [t for t in self.requests.get(client_ip, []) 
+                                  if current_time - t < 60]
+        
+        # Check rate limit
+        if len(self.requests.get(client_ip, [])) >= self.requests_per_minute:
+            raise HTTPException(status_code=429, detail="Too many requests")
+        
+        # Add current request
+        if client_ip not in self.requests:
+            self.requests[client_ip] = []
+        self.requests[client_ip].append(current_time)
+        
+        return await call_next(request)
+
+app.add_middleware(RateLimitMiddleware)
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    try:
+        await db.command("ping")
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Service unhealthy")
+
 # Get all feedbacks endpoint (using database)
 @app.get("/feedbacks")
-async def get_all_feedbacks():
-    # Return all feedbacks from MongoDB
-    # Use await with the async find method and to_list
-    data = await collection.find({}, {"_id": 0}).to_list(length=None) # Added await and to_list
-    return data
+async def get_all_feedbacks(limit: int = 100, skip: int = 0):
+    try:
+        feedbacks = await collection.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(length=None)
+        total = await collection.count_documents({})
+        return {
+            "data": feedbacks,
+            "total": total,
+            "limit": limit,
+            "skip": skip
+        }
+    except Exception as e:
+        logger.error(f"Error fetching feedbacks: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch feedbacks")
 
 # API endpoint to fetch feedback summary with optional event type filter (using database)
 @app.get("/api/feedback-summary")
@@ -145,7 +232,7 @@ async def test_retrieve():
 async def db_status():
     try:
         # Use await with the async command method
-        await client.admin.command('ping') # Added await
+        await db.admin.command('ping') # Added await
         return {"status": "ok"}
     except Exception as e:
         # In case of connection errors, this might still fail, but the structure is correct

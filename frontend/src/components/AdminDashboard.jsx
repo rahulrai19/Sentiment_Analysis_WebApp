@@ -22,32 +22,48 @@ const EVENT_TYPES = [
   "Workshop", "Seminar", "Competition", "Meetup", "Webinar", "Other"
 ];
 
-// Update the API base URL to use the correct backend URL
-const API_BASE = 'https://sentiment-s0y3.onrender.com';
+// Update the API base URL to use environment variable
+const API_BASE = process.env.REACT_APP_API_URL || 'https://sentiment-s0y3.onrender.com';
 
 const submitFeedback = async (formData) => {
-  await axios.post(`${API_BASE}/api/submit-feedback`, formData);
+  try {
+    const response = await axios.post(`${API_BASE}/api/submit-feedback`, formData);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    throw new Error(error.response?.data?.detail || 'Failed to submit feedback');
+  }
 };
 
 const fetchFeedbacks = async () => {
-  const res = await axios.get(`${API_BASE}/feedbacks`);
-  return res.data;
+  try {
+    const response = await axios.get(`${API_BASE}/feedbacks`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching feedbacks:', error);
+    throw new Error(error.response?.data?.detail || 'Failed to fetch feedbacks');
+  }
 };
 
 const fetchSummary = async (eventName = null, eventType = null) => {
-  let url = `${API_BASE}/api/feedback-summary`;
-  const params = new URLSearchParams();
-  if (eventName) {
-    params.append('event_name', eventName); // <-- use event_name
+  try {
+    let url = `${API_BASE}/api/feedback-summary`;
+    const params = new URLSearchParams();
+    if (eventName) {
+      params.append('event_name', eventName);
+    }
+    if (eventType) {
+      params.append('event_type', eventType);
+    }
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching summary:', error);
+    throw new Error(error.response?.data?.detail || 'Failed to fetch summary');
   }
-  if (eventType) {
-    params.append('event_type', eventType); // <-- use event_type
-  }
-  if (params.toString()) {
-    url += `?${params.toString()}`;
-  }
-  const res = await axios.get(url);
-  return res.data;
 };
 
 function AdminDashboard() {
@@ -79,14 +95,13 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Call fetchSummary with ONLY the selected event type for display data
-    fetchSummary(null, selectedEventType)
-      .then(data => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchSummary(null, selectedEventType);
         setSentimentCounts(data.sentiments || { positive: 0, neutral: 0, negative: 0 });
         const fetchedFeedbacks = data.recent_feedback || [];
-        setFeedbacks(fetchedFeedbacks); // Update feedbacks state
+        setFeedbacks(fetchedFeedbacks);
 
-        // Calculate and update dashboard stats based on the fetched data
         const totalSubmissions = fetchedFeedbacks.length;
         const totalRating = fetchedFeedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0);
         const averageRating = totalSubmissions > 0 ? (totalRating / totalSubmissions).toFixed(1) : '0.0';
@@ -95,18 +110,20 @@ function AdminDashboard() {
           totalSubmissions,
           averageRating
         });
-      })
-      .catch(error => {
-        console.error("Error fetching feedback summary:", error);
-        // Optionally reset data or show error state
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error(error.message || 'Failed to fetch dashboard data');
         setSentimentCounts({ positive: 0, neutral: 0, negative: 0 });
         setFeedbacks([]);
-        setDashboardStats({ // Reset stats on error
+        setDashboardStats({
           totalSubmissions: 0,
           averageRating: '0.0'
         });
-      });
-  }, [selectedEventType]); // Dependency is ONLY selectedEventType
+      }
+    };
+
+    fetchData();
+  }, [selectedEventType]);
 
   // Helper function to format date
   const formatDate = (dateString) => {
@@ -148,14 +165,46 @@ function AdminDashboard() {
     }],
   };
 
-  const barChartOptions = {
+  const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { display: false },
+      legend: {
+        position: 'top',
+        labels: {
+          color: 'white',
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1
+      }
     },
     scales: {
-      y: { beginAtZero: true, ticks: { stepSize: 1 } },
-    },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: {
+          color: 'white'
+        }
+      },
+      x: {
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: {
+          color: 'white'
+        }
+      }
+    }
   };
 
   const getSentimentColor = (sentiment) => {
@@ -383,10 +432,10 @@ function AdminDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ChartCard title="Feedback Sentiment Distribution">
-            <Pie data={pieChartData} />
+            <Pie data={pieChartData} options={chartOptions} />
           </ChartCard>
           <ChartCard title="Sentiment Counts (Bar Chart)">
-            <Bar data={barChartData} options={barChartOptions} />
+            <Bar data={barChartData} options={chartOptions} />
           </ChartCard>
         </div>
 
