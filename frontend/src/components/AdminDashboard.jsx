@@ -346,7 +346,7 @@ function AdminDashboard() {
           backgroundPosition: 'center'
         }}
       />
-      <div className="p-6 bg-sky-500/40 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-sky-400 text-blue-100 space-y-8">
+      <div className="p-6 bg-blue-950/90 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-blue-700 text-blue-100 space-y-8">
         <h1 className="text-3xl font-bold text-yellow-400 mb-6 drop-shadow">Admin Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -354,24 +354,24 @@ function AdminDashboard() {
             icon={<ChartBarIcon className="h-6 w-6" />} 
             label="Total Submissions" 
             value={dashboardStats.totalSubmissions}
-            bg="bg-sky-400/60"
+            bg="bg-blue-900/70"
           />
           <SummaryCard 
             icon={<StarIcon className="h-6 w-6" />} 
             label="Average Rating" 
             value={dashboardStats.averageRating}
-            bg="bg-sky-400/60"
+            bg="bg-blue-900/70"
           />
           <SummaryCard 
             icon={<ChatBubbleLeftIcon className="h-6 w-6" />} 
             label="Sentiment Distribution"
             value="View Chart"
-            bg="bg-sky-400/60"
+            bg="bg-blue-900/70"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-sky-400/60 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+          <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
             <h3 className="text-xl font-semibold text-yellow-400 mb-4">Filter Feedbacks</h3>
             <div>
               <label htmlFor="filterEvent" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event</label>
@@ -379,7 +379,7 @@ function AdminDashboard() {
                 id="filterEvent"
                 value={selectedEventName}
                 onChange={e => setSelectedEventName(e.target.value)}
-                className="w-full px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/70 text-blue-100"
+                className="w-full px-4 py-3 border border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-blue-800/50 text-blue-100"
               >
                 <option value="">All Events</option>
                 {availableEvents.map(event => (
@@ -393,7 +393,7 @@ function AdminDashboard() {
                 id="filterEventType"
                 value={selectedEventType}
                 onChange={e => setSelectedEventType(e.target.value)}
-                className="w-full px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/70 text-blue-100"
+                className="w-full px-4 py-3 border border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-blue-800/50 text-blue-100"
               >
                 <option value="">All Types</option>
                 {EVENT_TYPES.map(type => (
@@ -410,7 +410,7 @@ function AdminDashboard() {
             </button>
           </div>
 
-          <div className="bg-sky-400/60 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+          <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
             <h3 className="text-xl font-semibold text-yellow-400 mb-4">Manage Events</h3>
             <form onSubmit={handleAddEvent} className="flex gap-2">
               <input
@@ -418,7 +418,7 @@ function AdminDashboard() {
                 placeholder="New event name"
                 value={newEventName}
                 onChange={e => setNewEventName(e.target.value)}
-                className="flex-grow px-4 py-3 border border-sky-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-sky-900/70 text-blue-100 placeholder-blue-300"
+                className="flex-grow px-4 py-3 border border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-blue-800/50 text-blue-100 placeholder-blue-300"
                 disabled={addEventLoading}
                 required
               />
@@ -440,7 +440,7 @@ function AdminDashboard() {
                   <li className="text-blue-300 text-sm italic">No events added yet.</li>
                 ) : (
                   availableEvents.map(event => (
-                    <li key={event} className="flex justify-between items-center bg-sky-400/60 rounded-md p-2 border border-sky-400">
+                    <li key={event} className="flex justify-between items-center bg-blue-800/50 rounded-md p-2 border border-blue-700">
                       <span className="text-blue-100 text-sm">{event}</span>
                       <button 
                         onClick={() => handleDeleteEvent(event)}
@@ -466,7 +466,7 @@ function AdminDashboard() {
           </ChartCard>
         </div>
 
-        <div className="bg-sky-500/40 border border-sky-400 rounded-md shadow-md p-6">
+        <div className="bg-blue-900/70 shadow-inner border border-blue-800 rounded-md p-6">
           <h3 className="text-xl font-semibold text-yellow-400 mb-4">Recent Feedbacks</h3>
           <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
             {feedbacks.length === 0 ? (
@@ -524,7 +524,7 @@ function SummaryCard({ icon, label, value, bg }) {
 
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-sky-800/90 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+    <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
       <div className="chart-container" style={{ height: '300px', width: '100%', position: 'relative' }}>
         {children}
