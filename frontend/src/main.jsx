@@ -111,7 +111,7 @@ function MobileMenu({ isOpen, setMenuOpen, location, logout, isAdmin }) {
             </button>
           </>
         ) : (
-          <NavLink to="/login" label="Login" location={location} onClick={() => setMenuOpen(false)} />
+          <NavLink to="/login" label="Login Admin" location={location} onClick={() => setMenuOpen(false)} />
         )}
         <NavLink to="/about" label="About" location={location} onClick={() => setMenuOpen(false)} />
       </div>
