@@ -175,7 +175,8 @@ function AdminDashboard() {
           color: 'white',
           font: {
             size: 12
-          }
+          },
+          padding: 20
         }
       },
       tooltip: {
@@ -183,7 +184,8 @@ function AdminDashboard() {
         titleColor: 'white',
         bodyColor: 'white',
         borderColor: 'rgba(255, 255, 255, 0.2)',
-        borderWidth: 1
+        borderWidth: 1,
+        padding: 10
       }
     },
     scales: {
@@ -193,7 +195,8 @@ function AdminDashboard() {
           color: 'rgba(255, 255, 255, 0.1)'
         },
         ticks: {
-          color: 'white'
+          color: 'white',
+          padding: 10
         }
       },
       x: {
@@ -201,8 +204,17 @@ function AdminDashboard() {
           color: 'rgba(255, 255, 255, 0.1)'
         },
         ticks: {
-          color: 'white'
+          color: 'white',
+          padding: 10
         }
+      }
+    },
+    layout: {
+      padding: {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 20
       }
     }
   };
@@ -499,7 +511,7 @@ function ChartCard({ title, children }) {
   return (
     <div className="bg-sky-800/70 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
-      <div className="chart-container">
+      <div className="chart-container" style={{ height: '300px', width: '100%', position: 'relative' }}>
         {children}
       </div>
     </div>
