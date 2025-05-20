@@ -16,7 +16,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ConnectionFailure
 import time
 import logging
-import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -58,8 +57,8 @@ app.add_middleware(LoggingMiddleware)
 
 # Database connection with retry mechanism
 async def get_database():
-    max_retries = 5
-    retry_delay = 2  # seconds
+    max_retries = 3
+    retry_delay = 1  # seconds
     
     for attempt in range(max_retries):
         try:
@@ -67,30 +66,24 @@ async def get_database():
             # Verify connection
             await client.admin.command('ping')
             return client["feedbackDB"]
-        except Exception as e:
-            logger.error(f"Attempt {attempt + 1}/{max_retries} failed to connect to MongoDB: {str(e)}")
-            if attempt < max_retries - 1:
-                await asyncio.sleep(retry_delay)
-                retry_delay *= 2  # Exponential backoff
-            else:
-                logger.error("Failed to connect to MongoDB after all retries")
+        except ConnectionFailure as e:
+            if attempt == max_retries - 1:
+                logger.error(f"Failed to connect to MongoDB after {max_retries} attempts")
                 raise HTTPException(status_code=500, detail="Database connection failed")
+            logger.warning(f"Database connection attempt {attempt + 1} failed, retrying...")
+            time.sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
 
 # Initialize database connection
 db = None
-collection = None
 
 @app.on_event("startup")
 async def startup_db_client():
-    global db, collection
-    try:
-        db = await get_database()
-        collection = db["feedback"]
-        logger.info("Successfully connected to MongoDB and initialized collection")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {str(e)}")
-        # It's crucial to re-raise the exception to prevent the app from starting without a DB connection
-        raise
+    global db
+    db = await get_database()
+
+# Access the collection (MongoDB creates it on first write)
+collection = db["feedback"]
 
 # Sentiment analysis function
 def analyze_sentiment(text):
@@ -322,9 +315,3 @@ async def delete_event(event_name: str):
 @app.get("/", include_in_schema=False)
 async def read_root():
     return {"message": "FastAPI Sentiment Backend is running"}
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    if db:
-        db.client.close()
-        logger.info("MongoDB connection closed")
