@@ -242,7 +242,7 @@ const FeedbackForm = () => {
             className="form-select w-full max-w-xl mx-auto bg-blue-800/50 border-blue-600 focus:border-blue-400 focus:ring-blue-400 rounded-xl py-4 px-6 text-lg transition-all duration-200 hover:border-blue-500 focus:shadow-lg text-blue-50"
           >
             <option value="">Select event type</option>
-            {EVENT_TYPES.map((type) => (
+            {(Array.isArray(EVENT_TYPES) ? EVENT_TYPES : []).map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>
@@ -366,7 +366,7 @@ const FeedbackForm = () => {
           </button>
 
           <div className="feedback-dashboard bg-blue-800/50 rounded-xl p-6 border border-blue-700">
-            {allFeedbacks.length === 0 ? (
+            {(Array.isArray(allFeedbacks) ? allFeedbacks : []).length === 0 ? (
               <div className="text-center py-8">
                 <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -376,7 +376,7 @@ const FeedbackForm = () => {
             ) : (
               <div className="relative">
                 <div className="flex space-x-4 animate-scroll feedback-cards-container whitespace-nowrap">
-                  {allFeedbacks.map((f, i) => (
+                  {(Array.isArray(allFeedbacks) ? allFeedbacks : []).map((f, i) => (
                     <div
                       key={i}
                       className="feedback-card flex-shrink-0 w-64 bg-blue-900/70 border border-blue-700 rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-600 text-blue-100"
@@ -418,7 +418,7 @@ const FeedbackForm = () => {
                     </div>
                   ))}
                   {/* Render duplicate cards */}
-                  {allFeedbacks.map((f, i) => (
+                  {(Array.isArray(allFeedbacks) ? allFeedbacks : []).map((f, i) => (
                     <div
                       key={`duplicate-${i}`}
                       className="feedback-card flex-shrink-0 w-64 bg-blue-900/70 border border-blue-700 rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform hover:border-blue-600 text-blue-100"
