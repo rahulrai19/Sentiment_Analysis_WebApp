@@ -27,7 +27,7 @@ function BackgroundWrapper({ children }) {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
-          opacity: 0.8,
+          opacity: 0.6,
         }}
       />
       {/* Content - Removed pt-4 for less gap below navbar and adjusted max-w for increased width */}
