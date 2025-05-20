@@ -114,9 +114,10 @@ class Event(BaseModel):
 
 # Rate limiting middleware
 class RateLimitMiddleware:
-    def __init__(self, requests_per_minute: int = 60):
+    def __init__(self, app, requests_per_minute: int = 60):
         self.requests_per_minute = requests_per_minute
         self.requests = {}
+        self.app = app # Store the app instance
 
     async def __call__(self, request: Request, call_next):
         client_ip = request.client.host
