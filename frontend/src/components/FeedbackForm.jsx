@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { submitFeedback, getFeedbacks, getUniqueEvents } from "../services/api";
 import { Bars3Icon, ChatBubbleLeftIcon, ChartBarIcon } from "@heroicons/react/24/outline";
-import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const EVENT_TYPES = [
   "Workshop",
@@ -40,9 +39,9 @@ function getEmojiForRating(rating) {
   return found ? found.emoji : "😐";
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://sentiment-s0y3.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL;
 
-const FeedbackForm = ({ onFeedbackSubmitted }) => {
+const FeedbackForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     event: "",
@@ -60,6 +59,8 @@ const FeedbackForm = ({ onFeedbackSubmitted }) => {
 
   // New state for available events
   const [availableEvents, setAvailableEvents] = useState([]);
+
+  const navigate = useNavigate();
 
   // Fetch dashboard data AND the list of unique events
   useEffect(() => {
@@ -108,34 +109,27 @@ const FeedbackForm = ({ onFeedbackSubmitted }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setSentiment(null);
     try {
-      const response = await axios.post(`${API_BASE}/api/submit-feedback`, formData);
+      const feedbackWithDate = {
+        ...formData,
+        submissionDate: new Date().toISOString()
+      };
+      const response = await submitFeedback(feedbackWithDate);
       setSentiment(response.data.sentiment);
       setSubmitted(true);
-      if (onFeedbackSubmitted) {
-        onFeedbackSubmitted();
-      }
-      toast.success('Feedback submitted successfully!');
+      // Optionally re-fetch events after submitting
+      getUniqueEvents()
+        .then((res) => {
+          setAvailableEvents(res.data.events || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching unique events after submission:", error);
+          setAvailableEvents([]);
+        });
     } catch (error) {
-      console.error('Error submitting feedback:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to submit feedback.';
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+      console.error("Submission failed:", error);
     }
-  };
-
-  const handleAnotherFeedback = () => {
-    setFormData({
-      name: "",
-      event: "",
-      eventType: "",
-      comment: "",
-      rating: 7,
-    });
-    setSentiment(null);
-    setSubmitted(false);
+    setLoading(false);
   };
 
   if (submitted)
@@ -154,7 +148,18 @@ const FeedbackForm = ({ onFeedbackSubmitted }) => {
         )}
         <button
           className="mt-8 bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg shadow-lg hover:bg-yellow-500 transition-colors text-xl font-bold tracking-wide hover:scale-105 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-          onClick={handleAnotherFeedback}
+          onClick={() => {
+            setFormData({
+              name: "",
+              event: "",
+              eventType: "",
+              comment: "",
+              rating: 7,
+            });
+            setSentiment(null);
+            setSubmitted(false);
+            navigate('/');
+          }}
         >
           Submit Another Feedback
         </button>

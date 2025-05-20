@@ -23,7 +23,8 @@ const EVENT_TYPES = [
 ];
 
 // Update the API base URL to use environment variable
-const API_BASE = 'https://sentiment-s0y3.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://sentiment-s0y3.onrender.com';
+const API_KEY = import.meta.env.VITE_API_KEY; // Get API key from environment variable using Vite syntax
 
 const submitFeedback = async (formData) => {
   try {
@@ -58,8 +59,10 @@ const fetchSummary = async (eventName = null, eventType = null) => {
     if (params.toString()) {
       url += `?${params.toString()}`;
     }
+    
+    const headers = API_KEY ? { 'X-API-Key': API_KEY } : {}; // Add API key to headers
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, { headers }); // Pass headers to axios.get
     return response.data;
   } catch (error) {
     console.error('Error fetching summary:', error);
@@ -86,7 +89,8 @@ function AdminDashboard() {
     // Fetch available events when component mounts
     const fetchAvailableEvents = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/events`); // Removed headers
+        const headers = API_KEY ? { 'X-API-Key': API_KEY } : {}; // Add API key to headers
+        const response = await axios.get(`${API_BASE}/api/events`, { headers }); // Pass headers
         setAvailableEvents(response.data.events || []);
       } catch (error) {
         console.error("Error fetching available events:", error);
@@ -180,6 +184,7 @@ function AdminDashboard() {
       legend: {
         position: 'top',
         labels: {
+          color: 'white',
           font: {
             size: 12
           },
@@ -187,21 +192,31 @@ function AdminDashboard() {
         }
       },
       tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        padding: 10
       }
     },
     scales: {
       y: {
         beginAtZero: true,
         grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
         },
         ticks: {
+          color: 'white',
           padding: 10
         }
       },
       x: {
         grid: {
+          color: 'rgba(255, 255, 255, 0.1)'
         },
         ticks: {
+          color: 'white',
           padding: 10
         }
       }
@@ -449,7 +464,7 @@ function AdminDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ChartCard title="Feedback Sentiment Distribution">
-            <Pie data={pieChartData} />
+            <Pie data={pieChartData} options={chartOptions} />
           </ChartCard>
           <ChartCard title="Sentiment Counts (Bar Chart)">
             <Bar data={barChartData} options={chartOptions} />
@@ -516,7 +531,7 @@ function ChartCard({ title, children }) {
   return (
     <div className="bg-blue-900/70 shadow-inner rounded-xl p-6 border border-blue-800 space-y-4">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
-      <div className="chart-container" style={{ height: '300px', width: '100%', position: 'relative' }}>
+      <div className="chart-container">
         {children}
       </div>
     </div>

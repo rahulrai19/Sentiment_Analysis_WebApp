@@ -77,14 +77,18 @@ async def get_database():
 
 # Initialize database connection
 db = None
+collection = None
 
 @app.on_event("startup")
 async def startup_db_client():
-    global db
-    db = await get_database()
-
-# Access the collection (MongoDB creates it on first write)
-collection = db["feedback"]
+    global db, collection
+    try:
+        db = await get_database()
+        collection = db["feedback"]
+        logger.info("Successfully connected to MongoDB and initialized collection")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {str(e)}")
+        raise
 
 # Sentiment analysis function
 def analyze_sentiment(text):
@@ -137,15 +141,19 @@ app.add_middleware(RateLimitMiddleware)
 @app.get("/health")
 async def health_check():
     try:
-        await db.command("ping")
-        return {"status": "healthy", "database": "connected"}
+        if db:
+            await db.command("ping")
+            return {"status": "healthy", "database": "connected"}
+        return {"status": "degraded", "database": "disconnected"}
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Service unhealthy")
+        return {"status": "unhealthy", "error": str(e)}
 
 # Get all feedbacks endpoint (using database)
 @app.get("/feedbacks")
 async def get_all_feedbacks(limit: int = 100, skip: int = 0):
+    if not collection:
+        raise HTTPException(status_code=503, detail="Database not initialized")
     try:
         feedbacks = await collection.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(length=None)
         total = await collection.count_documents({})
