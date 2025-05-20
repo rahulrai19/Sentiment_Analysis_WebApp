@@ -346,7 +346,7 @@ function AdminDashboard() {
           backgroundPosition: 'center'
         }}
       />
-      <div className="p-6 bg-sky-500/20 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-sky-400 text-blue-100 space-y-8">
+      <div className="p-6 bg-sky-500/40 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-sky-400 text-blue-100 space-y-8">
         <h1 className="text-3xl font-bold text-yellow-400 mb-6 drop-shadow">Admin Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -354,24 +354,24 @@ function AdminDashboard() {
             icon={<ChartBarIcon className="h-6 w-6" />} 
             label="Total Submissions" 
             value={dashboardStats.totalSubmissions}
-            bg="bg-sky-400/20"
+            bg="bg-sky-400/40"
           />
           <SummaryCard 
             icon={<StarIcon className="h-6 w-6" />} 
             label="Average Rating" 
             value={dashboardStats.averageRating}
-            bg="bg-sky-400/20"
+            bg="bg-sky-400/40"
           />
           <SummaryCard 
             icon={<ChatBubbleLeftIcon className="h-6 w-6" />} 
             label="Sentiment Distribution"
             value="View Chart"
-            bg="bg-sky-400/20"
+            bg="bg-sky-400/40"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-sky-400/20 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+          <div className="bg-sky-400/40 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
             <h3 className="text-xl font-semibold text-yellow-400 mb-4">Filter Feedbacks</h3>
             <div>
               <label htmlFor="filterEvent" className="block text-sm font-medium text-blue-200 mb-2">Filter by Event</label>
@@ -410,7 +410,7 @@ function AdminDashboard() {
             </button>
           </div>
 
-          <div className="bg-sky-400/20 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+          <div className="bg-sky-400/40 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
             <h3 className="text-xl font-semibold text-yellow-400 mb-4">Manage Events</h3>
             <form onSubmit={handleAddEvent} className="flex gap-2">
               <input
@@ -466,7 +466,7 @@ function AdminDashboard() {
           </ChartCard>
         </div>
 
-        <div className="bg-sky-500/20 border border-sky-400 rounded-md shadow-md p-6">
+        <div className="bg-sky-500/40 border border-sky-400 rounded-md shadow-md p-6">
           <h3 className="text-xl font-semibold text-yellow-400 mb-4">Recent Feedbacks</h3>
           <div className="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
             {feedbacks.length === 0 ? (
@@ -524,7 +524,7 @@ function SummaryCard({ icon, label, value, bg }) {
 
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-sky-800/70 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
+    <div className="bg-sky-800/90 rounded-xl p-6 shadow-inner border border-sky-400 space-y-4">
       <h3 className="text-xl font-semibold text-yellow-400 mb-4 text-center">{title}</h3>
       <div className="chart-container" style={{ height: '300px', width: '100%', position: 'relative' }}>
         {children}
