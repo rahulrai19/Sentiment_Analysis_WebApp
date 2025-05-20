@@ -180,7 +180,7 @@ function NavBar() {
               </button>
             </>
           ) : (
-            <NavLink to="/login" label="Login" location={location.pathname} />
+            <NavLink to="/login" label="Admin Login" location={location.pathname} />
           )}
           <NavLink to="/about" label="About" location={location.pathname} />
         </div>

@@ -45,7 +45,7 @@ function Login() {
           type="submit"
           className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-semibold px-8 py-3 rounded-lg transition duration-300 shadow-lg transform hover:scale-105"
         >
-          Login
+          Admin Login
         </button>
       </form>
     </div>
