@@ -62,24 +62,37 @@ const FeedbackForm = () => {
 
   const navigate = useNavigate();
 
-  // Fetch dashboard data AND the list of unique events
+  const [fetching, setFetching] = useState(false);
+
+  // Fetch dashboard data AND the list of unique events with retry logic
   useEffect(() => {
-    // Fetch dashboard data AND the list of unique events
-    getFeedbacks()
-      .then((res) => {
-        // Always extract the feedbacks array from res.data.data if present
-        const feedbacks = Array.isArray(res.data)
-          ? res.data
-          : (Array.isArray(res.data.data) ? res.data.data : []);
-        setAllFeedbacks(feedbacks);
-        const count = feedbacks.length;
-        setDashboard(prev => ({ ...prev, count }));
-      })
-      .catch((error) => {
-        console.error("Error fetching feedbacks:", error);
-        setDashboard({ count: 0, totalEvents: 0 });
-        setAllFeedbacks([]);
-      });
+    let isMounted = true;
+    let attempts = 0;
+    const fetchFeedbacksWithRetry = () => {
+      setFetching(true);
+      getFeedbacks()
+        .then((res) => {
+          if (!isMounted) return;
+          const feedbacks = Array.isArray(res.data)
+            ? res.data
+            : (Array.isArray(res.data.data) ? res.data.data : []);
+          setAllFeedbacks(feedbacks);
+          setDashboard(prev => ({ ...prev, count: feedbacks.length }));
+          setFetching(false);
+        })
+        .catch((error) => {
+          if (!isMounted) return;
+          if (attempts < 2) { // retry up to 3 times total
+            attempts++;
+            setTimeout(fetchFeedbacksWithRetry, 1500);
+          } else {
+            setDashboard({ count: 0, totalEvents: 0 });
+            setAllFeedbacks([]);
+            setFetching(false);
+          }
+        });
+    };
+    fetchFeedbacksWithRetry();
 
     // Fetch unique events from the backend
     getUniqueEvents()
@@ -97,6 +110,8 @@ const FeedbackForm = () => {
         console.error("Error fetching unique events:", error);
         setAvailableEvents([]);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   const handleChange = (e) => {
@@ -164,6 +179,10 @@ const FeedbackForm = () => {
 
   return (
     <div className="max-w-3xl mx-auto mt-14 p-10 bg-blue-950/90 backdrop-blur-sm shadow-inset-lg shadow-blue-500/20 rounded-xl border border-blue-700 text-blue-100">
+      {/* Info about server slowness */}
+      <div className="mb-6 p-4 bg-yellow-100/80 border-l-4 border-yellow-400 text-yellow-900 rounded shadow text-center text-base font-medium">
+        <span className="font-bold">Note:</span> The server may be slow to respond because it is running on the free version of Render. Please wait a few moments, refresh the page if needed, or check out the <span className="underline cursor-pointer text-blue-700 hover:text-blue-900" onClick={() => navigate('/admin')}>Admin Dashboard</span> for more details!
+      </div>
       <h2 className="text-4xl font-extrabold mb-8 text-center text-yellow-400 drop-shadow">
         Submit Feedback Form
       </h2>
