@@ -4,7 +4,7 @@ import { Bars3Icon, ChatBubbleLeftIcon, ChartBarIcon } from "@heroicons/react/24
 import { useNavigate } from 'react-router-dom';
 
 const EVENT_TYPES = [
-  "Workshop",
+  "Workshop.",
   "Seminar",
   "Competition",
   "Meetup",
