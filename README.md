@@ -108,9 +108,9 @@ npm start
 5. Multi-language support
 
 ## Team
-- [Your Name] - Full Stack Developer
-- [Team Member 2] - Backend Developer
-- [Team Member 3] - Frontend Developer
+- Rahul Rai - Full Stack Developer
+- Rahul Prajapati - Backend Developer
+- Priyanshu Jaiswal - Frontend Developer
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
