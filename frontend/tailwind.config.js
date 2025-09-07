@@ -26,4 +26,31 @@ export default {
     },
   },
   plugins: [],
+  // Purge unused CSS for production
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}",
+    ],
+    options: {
+      safelist: [
+        // Keep dynamic classes that might be missed
+        'bg-blue-800/95',
+        'bg-blue-800/70',
+        'bg-blue-800/50',
+        'text-yellow-300',
+        'text-yellow-200',
+        'hover:text-yellow-200',
+        'hover:text-yellow-300',
+        'group-hover:text-yellow-200',
+        'group-hover:text-yellow-300',
+        'bg-yellow-300/10',
+        'bg-yellow-300/20',
+        'bg-yellow-300/30',
+        'group-hover:bg-yellow-300/20',
+        'group-hover:bg-yellow-300/30',
+      ],
+    },
+  },
 }

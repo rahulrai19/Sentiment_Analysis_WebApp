@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run optimize-images && vite build",
+    "build:optimized": "node scripts/build-optimize.js",
     "preview": "vite preview",
     "deploy": "netlify deploy --prod",
-    "optimize-images": "node scripts/optimize-images.js"
+    "deploy:optimized": "npm run build:optimized && netlify deploy --prod",
+    "optimize-images": "node scripts/optimize-images.js",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
