@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [react()],
   server: {
     port: 3000,
@@ -31,6 +31,9 @@ export default defineConfig({
     // Enable compression
     reportCompressedSize: true,
     chunkSizeWarningLimit: 1000,
+    // Ensure proper asset handling
+    assetsDir: 'assets',
+    sourcemap: false,
   },
   // Enable compression for dev server
   preview: {

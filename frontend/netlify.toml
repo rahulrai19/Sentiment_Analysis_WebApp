@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm run build:simple"
   publish = "dist"
 
 # Headers for performance optimization
@@ -34,8 +34,14 @@
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# Enable compression
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Encoding = "gzip" 
+# Enable compression (Netlify handles this automatically)
+# [[headers]]
+#   for = "/*"
+#   [headers.values]
+#     Content-Encoding = "gzip"
+
+# SPA redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
