@@ -1,12 +1,15 @@
 from fastapi import FastAPI, HTTPException, Request, Depends
 from .routes.api import router
 from .middleware.logging import LoggingMiddleware
+from .middleware.performance import PerformanceMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
+from fastapi.middleware.gzip import GZipMiddleware
 import os
 from dotenv import load_dotenv
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
+import functools
 from pydantic import BaseModel
 import datetime
 from typing import List, Optional
@@ -39,6 +42,9 @@ app = FastAPI(
     version="v1"
 )
 
+# Add compression middleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Security
 api_key_header = APIKeyHeader(name="X-API-Key")
 
@@ -56,15 +62,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(LoggingMiddleware)
+app.add_middleware(PerformanceMiddleware)
 
-# Database connection with retry mechanism
+# Database connection with retry mechanism and connection pooling
 async def get_database():
     max_retries = 5
     retry_delay = 2  # seconds
     
     for attempt in range(max_retries):
         try:
-            client = AsyncIOMotorClient(MONGO_URI)
+            # Configure connection with pooling
+            client = AsyncIOMotorClient(
+                MONGO_URI,
+                maxPoolSize=50,
+                minPoolSize=10,
+                maxIdleTimeMS=30000,
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=10000,
+                socketTimeoutMS=20000,
+            )
             # Verify connection
             await client.admin.command('ping')
             return client["feedbackDB"]
@@ -83,22 +99,38 @@ collection = None
 
 @app.on_event("startup")
 async def startup_db_client():
-    global db, collection
+    global db, collection, vader_analyzer
     try:
         db = await get_database()
         collection = db["feedback"]
+        
+        # Initialize sentiment analyzer once
+        vader_analyzer = SentimentIntensityAnalyzer()
+        
         logger.info("Successfully connected to MongoDB and initialized collection")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
         # It's crucial to re-raise the exception to prevent the app from starting without a DB connection
         raise
 
-# Sentiment analysis function
-def analyze_sentiment(text):
-    polarity = TextBlob(text).sentiment.polarity
-    if polarity > 0.2:
+# Initialize sentiment analyzers once at startup
+vader_analyzer = None
+textblob_cache = {}
+
+# Simple in-memory cache for API responses
+response_cache = {}
+CACHE_TTL = 300  # 5 minutes
+
+@functools.lru_cache(maxsize=1000)
+def analyze_sentiment(text: str) -> str:
+    """Optimized sentiment analysis with caching"""
+    # Use VaderSentiment for better performance
+    vader_scores = vader_analyzer.polarity_scores(text)
+    compound_score = vader_scores['compound']
+    
+    if compound_score >= 0.05:
         return "Positive"
-    elif polarity < -0.2:
+    elif compound_score <= -0.05:
         return "Negative"
     else:
         return "Neutral"

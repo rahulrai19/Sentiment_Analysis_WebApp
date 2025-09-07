@@ -11,26 +11,51 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Lazy load components
+// Lazy load components with better loading states
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const About = lazy(() => import("./components/About"));
 
-// Background Wrapper Component
+// Loading component for better UX
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-300"></div>
+  </div>
+);
+
+// Background Wrapper Component with optimized loading
 function BackgroundWrapper({ children }) {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  
+  React.useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.src = "/optimized/Back1.webp";
+  }, []);
+
   return (
     <div className="relative min-h-screen">
-      {/* Background Image */}
+      {/* Background Image with loading optimization */}
       <div 
-        className="fixed inset-0 z-0"
+        className={`fixed inset-0 z-0 transition-opacity duration-500 ${
+          imageLoaded ? 'opacity-60' : 'opacity-0'
+        }`}
         style={{
           backgroundImage: 'url("/optimized/Back1.webp")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
-          opacity: 0.6,
         }}
       />
-      {/* Content - Removed pt-4 for less gap below navbar and adjusted max-w for increased width */}
+      {/* Fallback gradient while image loads */}
+      {!imageLoaded && (
+        <div 
+          className="fixed inset-0 z-0 opacity-60"
+          style={{
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%)',
+          }}
+        />
+      )}
+      {/* Content */}
       <div className="relative z-10 max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </div>
@@ -215,7 +240,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               </div>
             } />
             <Route path="/admin" element={
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<LoadingSpinner />}>
                 <ProtectedRoute>
                   <div className="mt-8">
                     <AdminDashboard />
@@ -234,7 +259,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               </div>
             } />
             <Route path="/about" element={
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<LoadingSpinner />}>
                 <div className="mt-8">
                   <About />
                 </div>
