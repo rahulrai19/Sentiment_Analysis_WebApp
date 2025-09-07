@@ -30,6 +30,7 @@ function Login() {
           value={username}
           onChange={e => setUsername(e.target.value)}
           className="w-full px-4 py-3 border border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-blue-800/50 text-blue-100 placeholder-blue-300"
+          autoComplete="username"
           required
         />
         <input
@@ -38,6 +39,7 @@ function Login() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           className="w-full px-4 py-3 border border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-blue-800/50 text-blue-100 placeholder-blue-300"
+          autoComplete="current-password"
           required
         />
         {error && <div className="text-red-400 text-sm">{error}</div>}

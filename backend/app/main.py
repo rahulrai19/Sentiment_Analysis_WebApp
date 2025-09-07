@@ -247,37 +247,56 @@ async def get_all_feedbacks(limit: int = 100, skip: int = 0):
         logger.error(f"Error fetching feedbacks: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch feedbacks")
 
-# API endpoint to fetch feedback summary with optional event type filter (using database)
+# API endpoint to fetch feedback summary with optional event type filter (using database or fallback)
 @app.get("/api/feedback-summary")
 async def feedback_summary(event_name: str | None = None, event_type: str | None = None):
     """
     Get feedback sentiment summary and recent feedbacks, optionally filtered by event name and event type.
     """
     try:
-        # Build the query filter
-        filter_query = {}
-        if event_name:
-            filter_query["event"] = event_name
-            print(f"Filtering feedback summary by event: {event_name}")
-        if event_type:
-            filter_query["eventType"] = event_type
-            print(f"Filtering feedback summary by event type: {event_type}")
+        if use_fallback:
+            # Use in-memory storage
+            feedbacks = fallback_storage.copy()
+            
+            # Apply filters
+            if event_name:
+                feedbacks = [f for f in feedbacks if f.get("event") == event_name]
+            if event_type:
+                feedbacks = [f for f in feedbacks if f.get("eventType") == event_type]
+            
+            sentiments = {"positive": 0, "neutral": 0, "negative": 0}
+            for feedback in feedbacks:
+                if "sentiment" in feedback and feedback["sentiment"].lower() in sentiments:
+                    sentiments[feedback["sentiment"].lower()] += 1
+            
+            return {"sentiments": sentiments, "recent_feedback": feedbacks, "storage": "fallback"}
+        else:
+            # Use MongoDB
+            # Build the query filter
+            filter_query = {}
+            if event_name:
+                filter_query["event"] = event_name
+                print(f"Filtering feedback summary by event: {event_name}")
+            if event_type:
+                filter_query["eventType"] = event_type
+                print(f"Filtering feedback summary by event type: {event_type}")
 
-        # Use await with the async find method and to_list
-        feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None)
+            # Use await with the async find method and to_list
+            feedbacks = await collection.find(filter_query, {"_id": 0}).to_list(length=None)
 
-        print(f"Fetched {len(feedbacks)} feedbacks after filtering")
+            print(f"Fetched {len(feedbacks)} feedbacks after filtering")
 
-        sentiments = {"positive": 0, "neutral": 0, "negative": 0}
-        for feedback in feedbacks:
-            if "sentiment" in feedback and feedback["sentiment"].lower() in sentiments:
-                sentiments[feedback["sentiment"].lower()] += 1
+            sentiments = {"positive": 0, "neutral": 0, "negative": 0}
+            for feedback in feedbacks:
+                if "sentiment" in feedback and feedback["sentiment"].lower() in sentiments:
+                    sentiments[feedback["sentiment"].lower()] += 1
 
-        return {"sentiments": sentiments, "recent_feedback": feedbacks}
+            return {"sentiments": sentiments, "recent_feedback": feedbacks, "storage": "mongodb"}
 
     except Exception as e:
         print(f"Error in feedback_summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return fallback data instead of error
+        return {"sentiments": {"positive": 0, "neutral": 0, "negative": 0}, "recent_feedback": [], "storage": "error_fallback"}
 
 # Submit feedback to database endpoint
 @app.post("/api/submit-feedback")
@@ -337,29 +356,37 @@ async def db_status():
         # In case of connection errors, this might still fail, but the structure is correct
         raise HTTPException(status_code=500, detail=str(e))
 
-# New endpoints for event management (using database)
+# New endpoints for event management (using database or fallback)
 @app.get("/api/events")
 async def get_events():
     try:
-        # Get unique events from feedbacks collection using aggregation
-        pipeline = [
-            {"$group": {"_id": "$event"}},
-            {"$project": {"_id": 0, "name": "$_id"}},
-            {"$sort": {"name": 1}}
-        ]
-        # Use await with the async aggregate method and to_list
-        events_cursor = collection.aggregate(pipeline) # Get cursor
-        events_list = await events_cursor.to_list(length=None) # Convert to list
-        
-        # Filter out None or empty event names
-        valid_events = [event["name"] for event in events_list if event and "name" in event and event["name"]]
-        
-        print(f"Successfully fetched events: {valid_events}") # Log success
-        return {"events": valid_events }
+        if use_fallback:
+            # Use in-memory storage
+            events = list(set([f.get("event", "") for f in fallback_storage if f.get("event")]))
+            events = [e for e in events if e]  # Remove empty strings
+            print(f"Successfully fetched events from fallback: {events}")
+            return {"events": events, "storage": "fallback"}
+        else:
+            # Use MongoDB
+            # Get unique events from feedbacks collection using aggregation
+            pipeline = [
+                {"$group": {"_id": "$event"}},
+                {"$project": {"_id": 0, "name": "$_id"}},
+                {"$sort": {"name": 1}}
+            ]
+            # Use await with the async aggregate method and to_list
+            events_cursor = collection.aggregate(pipeline) # Get cursor
+            events_list = await events_cursor.to_list(length=None) # Convert to list
+            
+            # Filter out None or empty event names
+            valid_events = [event["name"] for event in events_list if event and "name" in event and event["name"]]
+            
+            print(f"Successfully fetched events: {valid_events}") # Log success
+            return {"events": valid_events, "storage": "mongodb"}
     except Exception as e:
-        print(f"Error fetching events from DB: {e}") # Log specific DB error
-        # Return a 500 Internal Server Error with details
-        raise HTTPException(status_code=500, detail=f"Failed to fetch events: {e}")
+        print(f"Error fetching events: {e}") # Log specific DB error
+        # Return fallback data instead of error
+        return {"events": [], "storage": "error_fallback"}
 
 @app.post("/api/events")
 async def add_event(event: Event):
