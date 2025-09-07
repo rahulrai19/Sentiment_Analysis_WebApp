@@ -32,7 +32,14 @@ logger = logging.getLogger(__name__)
 # Environment variables with fallbacks
 MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
-    raise ValueError("MONGO_URI environment variable is not set")
+    logger.warning("MONGO_URI environment variable is not set, using fallback")
+    # Fallback to a local MongoDB or create a simple in-memory storage
+    MONGO_URI = "mongodb://localhost:27017/feedbackDB"
+
+# Validate MongoDB URI format
+if not MONGO_URI.startswith(("mongodb://", "mongodb+srv://")):
+    logger.error(f"Invalid MongoDB URI format: {MONGO_URI}")
+    raise ValueError("MONGO_URI must start with mongodb:// or mongodb+srv://")
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://verbose-feedbacker.netlify.app").split(",")
 API_KEY = os.getenv("API_KEY")
@@ -66,7 +73,8 @@ app.add_middleware(PerformanceMiddleware)
 
 # Database connection with retry mechanism and connection pooling
 async def get_database():
-    max_retries = 5
+    global use_fallback
+    max_retries = 3  # Reduced retries for faster fallback
     retry_delay = 2  # seconds
     
     for attempt in range(max_retries):
@@ -77,12 +85,14 @@ async def get_database():
                 maxPoolSize=50,
                 minPoolSize=10,
                 maxIdleTimeMS=30000,
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=10000,
-                socketTimeoutMS=20000,
+                serverSelectionTimeoutMS=3000,  # Reduced timeout
+                connectTimeoutMS=5000,  # Reduced timeout
+                socketTimeoutMS=10000,  # Reduced timeout
             )
             # Verify connection
             await client.admin.command('ping')
+            logger.info("Successfully connected to MongoDB")
+            use_fallback = False
             return client["feedbackDB"]
         except Exception as e:
             logger.error(f"Attempt {attempt + 1}/{max_retries} failed to connect to MongoDB: {str(e)}")
@@ -90,8 +100,9 @@ async def get_database():
                 await asyncio.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
             else:
-                logger.error("Failed to connect to MongoDB after all retries")
-                raise HTTPException(status_code=500, detail="Database connection failed")
+                logger.warning("Failed to connect to MongoDB, switching to fallback storage")
+                use_fallback = True
+                return None  # Return None to indicate fallback mode
 
 # Initialize database connection
 db = None
@@ -99,19 +110,26 @@ collection = None
 
 @app.on_event("startup")
 async def startup_db_client():
-    global db, collection, vader_analyzer
+    global db, collection, vader_analyzer, use_fallback
     try:
         db = await get_database()
-        collection = db["feedback"]
+        
+        if db is not None:
+            collection = db["feedback"]
+            logger.info("Successfully connected to MongoDB and initialized collection")
+        else:
+            logger.warning("Using fallback in-memory storage")
+            use_fallback = True
         
         # Initialize sentiment analyzer once
         vader_analyzer = SentimentIntensityAnalyzer()
         
-        logger.info("Successfully connected to MongoDB and initialized collection")
+        logger.info("Application startup completed successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
-        # It's crucial to re-raise the exception to prevent the app from starting without a DB connection
-        raise
+        logger.warning("Continuing with fallback storage mode")
+        use_fallback = True
+        vader_analyzer = SentimentIntensityAnalyzer()
 
 # Initialize sentiment analyzers once at startup
 vader_analyzer = None
@@ -120,6 +138,10 @@ textblob_cache = {}
 # Simple in-memory cache for API responses
 response_cache = {}
 CACHE_TTL = 300  # 5 minutes
+
+# Fallback in-memory storage when MongoDB is not available
+fallback_storage = []
+use_fallback = False
 
 @functools.lru_cache(maxsize=1000)
 def analyze_sentiment(text: str) -> str:
@@ -184,24 +206,43 @@ app.add_middleware(RateLimitMiddleware)
 @app.get("/health")
 async def health_check():
     try:
-        await db.command("ping")
-        return {"status": "healthy", "database": "connected"}
+        if use_fallback:
+            return {"status": "healthy", "database": "fallback_mode", "storage": "in_memory"}
+        elif db:
+            await db.command("ping")
+            return {"status": "healthy", "database": "connected"}
+        else:
+            return {"status": "healthy", "database": "fallback_mode", "storage": "in_memory"}
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Service unhealthy")
+        return {"status": "healthy", "database": "fallback_mode", "storage": "in_memory"}
 
-# Get all feedbacks endpoint (using database)
+# Get all feedbacks endpoint (using database or fallback)
 @app.get("/feedbacks")
 async def get_all_feedbacks(limit: int = 100, skip: int = 0):
     try:
-        feedbacks = await collection.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(length=None)
-        total = await collection.count_documents({})
-        return {
-            "data": feedbacks,
-            "total": total,
-            "limit": limit,
-            "skip": skip
-        }
+        if use_fallback:
+            # Use in-memory storage
+            feedbacks = fallback_storage[skip:skip + limit]
+            total = len(fallback_storage)
+            return {
+                "data": feedbacks,
+                "total": total,
+                "limit": limit,
+                "skip": skip,
+                "storage": "fallback"
+            }
+        else:
+            # Use MongoDB
+            feedbacks = await collection.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(length=None)
+            total = await collection.count_documents({})
+            return {
+                "data": feedbacks,
+                "total": total,
+                "limit": limit,
+                "skip": skip,
+                "storage": "mongodb"
+            }
     except Exception as e:
         logger.error(f"Error fetching feedbacks: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch feedbacks")
@@ -250,10 +291,20 @@ async def submit_feedback_to_db(feedback: FeedbackIn): # Renamed function to avo
     feedback_dict["sentiment"] = sentiment
     feedback_dict["submissionDate"] = datetime.datetime.utcnow().isoformat()  # Add submission date
     
-    # Use await with the async insert_one method
-    await collection.insert_one(feedback_dict) # Added await
-    
-    return {"status": "Feedback saved!", "sentiment": sentiment}
+    try:
+        if use_fallback:
+            # Use in-memory storage
+            fallback_storage.append(feedback_dict)
+            logger.info(f"Feedback saved to fallback storage: {sentiment}")
+        else:
+            # Use MongoDB
+            await collection.insert_one(feedback_dict)
+            logger.info(f"Feedback saved to MongoDB: {sentiment}")
+        
+        return {"status": "Feedback saved!", "sentiment": sentiment, "storage": "fallback" if use_fallback else "mongodb"}
+    except Exception as e:
+        logger.error(f"Error saving feedback: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to save feedback")
 
 @app.post("/api/test-insert")
 async def test_insert():

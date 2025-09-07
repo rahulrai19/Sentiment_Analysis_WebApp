@@ -103,8 +103,7 @@ npm run build:optimized
 npm run preview
 
 # Backend performance testing
-curl -w "@curl-format.txt" -o /dev/null -s "https://your-backend-url.com/health"
-```
+curl -w "@curl-format.txt" -o /dev/null -s "https://sentiment-s0y3.onrender.com"
 
 ## 🚨 Performance Alerts
 
